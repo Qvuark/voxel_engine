@@ -13,7 +13,7 @@ int Window::initialize(int width, int height, const char* title)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-    GLFWwindow* window = glfwCreateWindow(width, height, title, nullptr, nullptr);
+    window = glfwCreateWindow(width, height, title, nullptr, nullptr);
     if (window == nullptr)
     {
         std::cerr << "Failed to initialize GLEW" << std::endl;
@@ -28,6 +28,7 @@ int Window::initialize(int width, int height, const char* title)
         std::cerr << "failed to initialize GLEW" << std::endl;
         return -1;
     }
+    glViewport(0, 0, width, height);
     return 0;
 }
 bool Window::isClosed()
@@ -37,4 +38,12 @@ bool Window::isClosed()
 void Window::swapBuffers()
 {
     glfwSwapBuffers(window);
+}
+void Window::terminate()
+{
+    if (window)
+    {
+        glfwDestroyWindow(window);
+        window = nullptr;
+    }
 }

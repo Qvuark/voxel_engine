@@ -7,7 +7,8 @@ add_executable(voxel_engine
 	"voxel_engine.h" 
 	"window/window.h" 
 	"window/window.cpp" 
-)
+	"window/events.cpp" 
+	"window/events.h")
 
 # Находим GLFW, установленную через vcpkg
 find_package(glfw3 CONFIG REQUIRED)

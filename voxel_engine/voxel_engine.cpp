@@ -12,7 +12,7 @@ int main()
 {
     Window::initialize(WIDTH, HEIGHT, "window");
     
-    while (!Window::isClosed())
+    while(!Window::shouldClosed())
     {
         glfwPollEvents();
         Window::swapBuffers();

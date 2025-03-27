@@ -37,7 +37,7 @@ bool Window::shouldClosed()
 }
 void Window::swapBuffers()
 {
-    glfwSwapBuffers(window);
+    return glfwSwapBuffers(window);
 }
 void Window::terminate()
 {

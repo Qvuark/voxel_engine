@@ -13,7 +13,6 @@ public:
 	static void terminate();
 	static bool shouldClosed();
 	static void swapBuffers();
-
 };
 
 

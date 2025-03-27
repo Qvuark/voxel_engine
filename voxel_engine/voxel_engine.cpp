@@ -4,6 +4,7 @@
 #include <exception>
 #include <iostream>
 #include "window/window.h"
+#include "window/events.h"
 
 int WIDTH = 1200;
 int HEIGHT = 800;
@@ -14,7 +15,7 @@ int main()
     
     while(!Window::shouldClosed())
     {
-        glfwPollEvents();
+        Events::pullEvents();
         Window::swapBuffers();
     }
     Window::terminate();

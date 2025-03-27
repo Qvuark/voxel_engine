@@ -7,6 +7,27 @@
 bool* Events::_keys;
 unsigned* Events::_frames;
 unsigned Events::_currentFrame = 0;
+float Events::deltaX = 0.0f;
+float Events::deltaY = 0.0f;
+float Events::x = 0.0f;
+float Events::y = 0.0f;
+bool Events::_cursor_started = false;
+bool Events::_cursor_locked = false;
+
+void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	if (Events::_cursor_locked)
+	{
+		Events::deltaX += xpos - Events::x;
+		Events::deltaY += ypos - Events::y;
+	}
+	else
+	{
+		Events::_cursor_started = true;
+	}
+	Events::x = xpos;
+	Events::y = ypos;
+}
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mode)
 {
 	if (action == GLFW_PRESS)
@@ -19,7 +40,6 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mode)
 		Events::_keys[MOUSE_BUTTONS + button] = false;
 		Events::_frames[MOUSE_BUTTONS + button] = Events::_currentFrame;
 	}
-
 }
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
@@ -45,6 +65,14 @@ int Events::initialize()
 
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
+	glfwSetCursorPosCallback(window, cursor_position_callback);
 	return 0;
+}
+void Events::pullEvents()
+{
+	_currentFrame++;
+	deltaX = 0.0f;
+	deltaY = 0.0f;
+	glfwPollEvents();
 }
 

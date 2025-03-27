@@ -13,6 +13,8 @@ public:
 	static float deltaY;
 	static float x;
 	static float y;
+	static bool _cursor_started;
+	static bool _cursor_locked;
 
 	static int initialize();
 	static void pullEvents();

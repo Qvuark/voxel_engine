@@ -12,10 +12,14 @@ int HEIGHT = 800;
 int main() 
 {
     Window::initialize(WIDTH, HEIGHT, "window");
-    
-    while(!Window::shouldClosed())
+    Events::initialize();
+    while(!Window::isShouldClosed())
     {
         Events::pullEvents();
+        if (Events::jtPressed(GLFW_KEY_ESCAPE))
+        {
+            Window::setShouldClose(true);
+        }   
         Window::swapBuffers();
     }
     Window::terminate();

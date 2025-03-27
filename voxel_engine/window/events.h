@@ -15,9 +15,13 @@ public:
 	static float y;
 	static bool _cursor_started;
 	static bool _cursor_locked;
-
+	
 	static int initialize();
 	static void pullEvents();
+	static bool clicked(int keycode);
+	static bool jtClicked(int keycode);
+	static bool pressed(int keycode);
+	static bool jtPressed(int keycode);
 };
 
 #endif

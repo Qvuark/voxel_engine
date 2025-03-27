@@ -31,9 +31,13 @@ int Window::initialize(int width, int height, const char* title)
     glViewport(0, 0, width, height);
     return 0;
 }
-bool Window::shouldClosed()
+bool Window::isShouldClosed()
 {   
     return glfwWindowShouldClose(window);
+}
+void Window::setShouldClose(bool flag)
+{
+    glfwSetWindowShouldClose(window, flag);
 }
 void Window::swapBuffers()
 {

@@ -54,28 +54,39 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		Events::_frames[key] = Events::_currentFrame;
 	}
 }
-bool Events::pressed(int keycode)
-{
-	if (keycode < 0 || keycode >= MOUSE_BUTTONS)
+	bool Events::clicked(int keycode)
 	{
-		return false;
+		int index = MOUSE_BUTTONS + keycode;
+		return _keys[index];
 	}
-	else
+	bool Events::jtClicked(int keycode)
 	{
-		return _keys[keycode];
+
+		int index = MOUSE_BUTTONS + keycode;
+		return _keys[index] && _frames[index] == _currentFrame;
 	}
-}
-bool Events::jtPressed(int keycode)
-{
-	if (keycode < 0 || keycode >= MOUSE_BUTTONS)
+	bool Events::pressed(int keycode)
 	{
-		return false;
+		if (keycode < 0 || keycode >= MOUSE_BUTTONS)
+		{
+			return false;
+		}
+		else
+		{
+			return _keys[keycode];
+		}
 	}
-	else
+	bool Events::jtPressed(int keycode)
 	{
-		return _keys[keycode] && _frames[keycode] == _currentFrame;
+		if (keycode < 0 || keycode >= MOUSE_BUTTONS)
+		{
+			return false;
+		}
+		else
+		{
+			return _keys[keycode] && _frames[keycode] == _currentFrame;
+		}
 	}
-}
 int Events::initialize()
 {
 	GLFWwindow* window = Window::window;

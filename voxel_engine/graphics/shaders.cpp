@@ -25,8 +25,8 @@ Shader* loadShader(std::string vertexFile, std::string fragmentFile)
 	std::ifstream vertexShaderFile;
 	std::ifstream fragmentShaderFile;
 
-	vertexShaderFile.exceptions(std::ifstream::badbit);
-	fragmentShaderFile.exceptions(std::ifstream::badbit);
+	vertexShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+	fragmentShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
 	try
 	{
@@ -49,7 +49,7 @@ Shader* loadShader(std::string vertexFile, std::string fragmentFile)
 		return nullptr;
 	}
 	const GLchar *vertexShaderCode = vertexCode.c_str();
-	const GLchar* fragmentShaderCode = fragmentCode.c_str();
+	const GLchar *fragmentShaderCode = fragmentCode.c_str();
 
 	GLuint vertex, fragment;
 	GLint success;
@@ -65,7 +65,6 @@ Shader* loadShader(std::string vertexFile, std::string fragmentFile)
 		glGetShaderInfoLog(vertex, 512, nullptr, infoLog);
 		std::cerr << "Shader(vertex) copilation error\n" << infoLog << std::endl;
 		return nullptr; 
-		
 	}
 
 	//fragment shader
@@ -85,6 +84,7 @@ Shader* loadShader(std::string vertexFile, std::string fragmentFile)
 	glAttachShader(id, vertex);
 	glAttachShader(id, fragment);
 	glLinkProgram(id);
+
 	glGetProgramiv(id, GL_LINK_STATUS, &success);
 	if (!success)
 	{

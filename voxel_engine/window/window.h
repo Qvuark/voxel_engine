@@ -11,6 +11,7 @@ public:
 
 	static int initialize(int width, int height, const char* title);
 	static void terminate();
+	static void destroyWindow();
 	static bool isShouldClosed();
 	static void setShouldClose(bool flag);
 	static void swapBuffers();

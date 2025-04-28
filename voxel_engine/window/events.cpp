@@ -3,6 +3,7 @@
 #include "string.h"
 #include <algorithm>
 #define MOUSE_BUTTONS 1024
+#define TOTAL_KEYS 1032
 
 bool* Events::_keys;
 unsigned* Events::_frames;
@@ -54,47 +55,46 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		Events::_frames[key] = Events::_currentFrame;
 	}
 }
-	bool Events::clicked(int keycode)
+bool Events::clicked(int keycode)
+{
+	int index = MOUSE_BUTTONS + keycode;
+	return _keys[index];
+}
+bool Events::jtClicked(int keycode)
+{
+	int index = MOUSE_BUTTONS + keycode;
+	return _keys[index] && _frames[index] == _currentFrame;
+}
+bool Events::pressed(int keycode)
+{
+	if (keycode < 0 || keycode >= MOUSE_BUTTONS)
 	{
-		int index = MOUSE_BUTTONS + keycode;
-		return _keys[index];
+		return false;
 	}
-	bool Events::jtClicked(int keycode)
+	else
 	{
-
-		int index = MOUSE_BUTTONS + keycode;
-		return _keys[index] && _frames[index] == _currentFrame;
+		return _keys[keycode];
 	}
-	bool Events::pressed(int keycode)
+}
+bool Events::jtPressed(int keycode)
+{
+	if (keycode < 0 || keycode >= MOUSE_BUTTONS)
 	{
-		if (keycode < 0 || keycode >= MOUSE_BUTTONS)
-		{
-			return false;
-		}
-		else
-		{
-			return _keys[keycode];
-		}
+		return false;
 	}
-	bool Events::jtPressed(int keycode)
+	else
 	{
-		if (keycode < 0 || keycode >= MOUSE_BUTTONS)
-		{
-			return false;
-		}
-		else
-		{
-			return _keys[keycode] && _frames[keycode] == _currentFrame;
-		}
+		return _keys[keycode] && _frames[keycode] == _currentFrame;
 	}
+}
 int Events::initialize()
 {
 	GLFWwindow* window = Window::window;
-	_keys = new bool[1032];
-	_frames = new unsigned int[1032];
+	_keys = new bool[TOTAL_KEYS];
+	_frames = new unsigned int[TOTAL_KEYS];
 
-	std::fill_n(_keys, 1032, false);
-	std::fill_n(_frames, 1032, 0);
+	std::fill_n(_keys, TOTAL_KEYS, false);
+	std::fill_n(_frames, TOTAL_KEYS, 0);
 
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetMouseButtonCallback(window, mouse_button_callback);

@@ -19,8 +19,13 @@ find_package(OpenGL REQUIRED MODULE)
 find_package(GLEW CONFIG REQUIRED)
 
 # Привязываем GLFW и OpenGL к нашей цели
-target_link_libraries(voxel_engine PRIVATE glfw OpenGL::GL GLEW::GLEW)
+target_link_libraries(voxel_engine PRIVATE 
+	glfw 	
+	OpenGL::GL 
+	GLEW::GLEW
+)
+
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
-  set_property(TARGET voxel_engine PROPERTY CXX_STANDARD 20)
+  set_property(TARGET voxel_engine PROPERTY CXX_STANDARD 17)
 endif()

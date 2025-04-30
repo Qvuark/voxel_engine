@@ -8,14 +8,13 @@
 #include <exception>
 #include <iostream>
 
+#include "window/camera.h"
 #include "loaders/png_loading.h"
 #include "graphics/textures.h"
 #include "graphics/shaders.h"
 #include "window/window.h"
 #include "window/events.h"
 
-int WIDTH = 1200;
-int HEIGHT = 800;
 
 float vertices[] =
 {
@@ -31,7 +30,10 @@ float vertices[] =
 
 int main() 
 {
-    Window::initialize(WIDTH, HEIGHT, "window");
+    int currentWidth = Window::width;  
+    int currentHeight = Window::height;
+
+    Window::initialize(currentWidth, currentHeight, "window");
     Events::initialize();
     
     Shader* shader = loadShader("D:/DEV/c++/voxel_engine/res/main.vert", "D:/DEV/c++/voxel_engine/res/main.frag");
@@ -66,9 +68,9 @@ int main()
 
     glClearColor(0.6f, 0.62f, 0.65f, 1);
 
-    glm::mat4 model(1.0f);
-    model = glm::scale(model, glm::vec3(0.5f,0.5f,0.5f));
-    model = glm::rotate(model, 0.0f, glm::vec3(0, 0, 1));
+    Camera* camera = new Camera(vec3(0,0,1),radians(40.0f));
+    mat4 model(1.0f);
+    model = scale(model, vec3(0.5f,0.5f,0.5f));
 
     while(!Window::isShouldBeClosed())
     {
@@ -90,6 +92,7 @@ int main()
         //draw vao
         shader->use();
         shader->uniformMatrix("model", model);
+        shader->uniformMatrix("projview", camera->getProjection() * camera->getView());
         texture->bind();
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES,0,6);

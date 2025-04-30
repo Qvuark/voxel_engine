@@ -11,15 +11,15 @@ add_executable(voxel_engine
 	"graphics/shaders.cpp"
 	"graphics/textures.cpp"
 	"loaders/png_loading.cpp"
+	"window/camera.cpp"
 
 	"window/window.h" 
 	"voxel_engine.h"
 	"window/events.h"   
  	"graphics/shaders.h"
 	"graphics/textures.h" 
-	"loaders/png_loading.h" 
-
-
+	"loaders/png_loading.h"
+	"window/camera.h"
 )
 
 # Находим GLFW, установленную через vcpkg

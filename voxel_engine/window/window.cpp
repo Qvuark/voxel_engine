@@ -4,6 +4,8 @@
 #include <iostream>
 
 GLFWwindow* Window::window;
+int Window::width = 1200;
+int Window::height = 800;
 
 int Window::initialize(int width, int height, const char* title)
 {

@@ -10,14 +10,14 @@ add_executable(voxel_engine
 	"window/events.cpp" 
 	"graphics/shaders.cpp"
 	"graphics/textures.cpp"
-	"loaders/pngLoading.cpp"
+	"loaders/png_loading.cpp"
 
 	"window/window.h" 
 	"voxel_engine.h"
 	"window/events.h"   
  	"graphics/shaders.h"
 	"graphics/textures.h" 
-	"loaders/pngLoading.h" 
+	"loaders/png_loading.h" 
 
 
 )
@@ -28,7 +28,7 @@ find_package(OpenGL REQUIRED MODULE)
 find_package(GLEW   CONFIG REQUIRED)
 find_package(PNG    CONFIG REQUIRED)
 find_package(ZLIB          REQUIRED)
-
+find_package(glm           REQUIRED)
 
 # Привязываем GLFW и OpenGL к нашей цели
 target_link_libraries(voxel_engine PRIVATE 

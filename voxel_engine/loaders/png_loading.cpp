@@ -1,4 +1,4 @@
-#include "pngLoading.h"
+#include "png_loading.h"
 #include <png.h>
 #include <GL/glew.h>
 #include "../graphics/textures.h"

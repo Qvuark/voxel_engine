@@ -13,6 +13,15 @@ void Shader::use()
 {
 	glUseProgram(id);
 }
+void Shader::uniformMatrix(std::string name, glm::mat4 matrix)
+{
+	GLuint transformLoc = glGetUniformLocation(id, name.c_str());
+	if (transformLoc == -1) 
+	{
+		std::cerr << "Uniform " << name << " not found" << std::endl;
+	}
+	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(matrix));
+}
 Shader* loadShader(std::string vertexFile, std::string fragmentFile)
 {
 	std::string vertexCode;

@@ -1,12 +1,14 @@
 ﻿
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/ext.hpp>
 
 #include <memory>
 #include <exception>
 #include <iostream>
 
-#include "loaders/pngLoading.h"
+#include "loaders/png_loading.h"
 #include "graphics/textures.h"
 #include "graphics/shaders.h"
 #include "window/window.h"
@@ -63,6 +65,11 @@ int main()
     glBindVertexArray(0);
 
     glClearColor(0.6f, 0.62f, 0.65f, 1);
+
+    glm::mat4 model(1.0f);
+    model = glm::scale(model, glm::vec3(0.5f,0.5f,0.5f));
+    model = glm::rotate(model, 0.0f, glm::vec3(0, 0, 1));
+
     while(!Window::isShouldBeClosed())
     {
         
@@ -82,6 +89,7 @@ int main()
 
         //draw vao
         shader->use();
+        shader->uniformMatrix("model", model);
         texture->bind();
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES,0,6);

@@ -1,4 +1,5 @@
 #include "events.h"
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "string.h"
 #include <algorithm>
@@ -87,6 +88,10 @@ bool Events::jtPressed(int keycode)
 		return _keys[keycode] && _frames[keycode] == _currentFrame;
 	}
 }
+void window_size_callback(GLFWwindow *window, int width, int height)
+{
+	glViewport(0, 0, width, height);
+}
 int Events::initialize()
 {
 	GLFWwindow* window = Window::window;
@@ -99,6 +104,7 @@ int Events::initialize()
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	glfwSetCursorPosCallback(window, cursor_position_callback);
+	glfwSetWindowSizeCallback(window, window_size_callback);
 	return 0;
 }
 void Events::pullEvents()

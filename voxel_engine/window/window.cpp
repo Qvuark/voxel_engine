@@ -15,7 +15,7 @@ int Window::initialize(int width, int height, const char* title)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
     window = glfwCreateWindow(width, height, title, nullptr, nullptr);
     if (window == nullptr) 
@@ -35,7 +35,6 @@ int Window::initialize(int width, int height, const char* title)
         return -1;
     }
 
-    glViewport(0, 0, width, height);
     glfwSwapInterval(1);
 
     return 0;

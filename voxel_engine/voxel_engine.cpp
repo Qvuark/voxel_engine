@@ -65,7 +65,7 @@ int main()
     glClearColor(0.6f, 0.62f, 0.65f, 1);
     while(!Window::isShouldBeClosed())
     {
-        Events::pullEvents();
+        
         if (Events::jtPressed(GLFW_KEY_ESCAPE))
         {
             Window::setShouldClose(true);
@@ -88,6 +88,7 @@ int main()
         glBindVertexArray(0);
 
         Window::swapBuffers();
+        Events::pullEvents();
     }
 
     delete shader;

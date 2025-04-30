@@ -10,10 +10,8 @@
 
 
 
-Shader::Shader(unsigned int id) : id(id)
-{
+Shader::Shader(unsigned int id) : id(id) { }
 
-}
 void Shader::use()
 {
 	glUseProgram(id);
@@ -41,7 +39,7 @@ Shader* loadShader(std::string vertexFile, std::string fragmentFile)
 		fragmentShaderFile.close();
 
 		vertexCode = vertexShaderStream.str();
-		fragmentCode = fragmentShaderStream.str();
+			fragmentCode = fragmentShaderStream.str();
 	}
 	catch(std::ifstream::failure &e)
 	{

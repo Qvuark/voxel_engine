@@ -1,4 +1,4 @@
-﻿//#define GLEW_STATIC
+﻿
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -6,6 +6,8 @@
 #include <exception>
 #include <iostream>
 
+#include "loaders/pngLoading.h"
+#include "graphics/textures.h"
 #include "graphics/shaders.h"
 #include "window/window.h"
 #include "window/events.h"
@@ -28,8 +30,17 @@ int main()
     Shader* shader = loadShader("D:/DEV/c++/voxel_engine/res/main.vert", "D:/DEV/c++/voxel_engine/res/main.frag");
     if (shader == nullptr) 
     { 
-        std::cerr << "couldnt load the shader";
+        std::cerr << "couldnt load the shader"<<std::endl;
         Window::terminate();
+        return 1;
+    }
+
+    Texture* texture = loadTexture("D:/DEV/c++/voxel_engine/res/block.png");
+    if (texture == nullptr)
+    {
+        std::cerr << "couldnt load the texture" << std::endl;
+        Window::terminate();
+        return 1;
     }
     //create VAO
     GLuint VAO, VBO;
@@ -64,12 +75,19 @@ int main()
 
         //draw vao
         shader->use();
+        texture->bind();
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES,0,3);
         glBindVertexArray(0);
 
         Window::swapBuffers();
     }
+
+    delete shader;
+    delete texture;
+    glDeleteBuffers(1, &VBO);
+    glDeleteVertexArrays(1, &VAO);
+    
     Window::terminate();
     return 0;
 }

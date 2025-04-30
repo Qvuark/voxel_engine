@@ -16,7 +16,6 @@ public:
 	static void setShouldClose(bool flag);
 	static void swapBuffers();
 
-
 };
 
 

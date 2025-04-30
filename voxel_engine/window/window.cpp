@@ -40,7 +40,7 @@ int Window::initialize(int width, int height, const char* title)
 
     return 0;
 }
-bool Window::isShouldClosed()
+bool Window::isShouldBeClosed()
 {   
     return glfwWindowShouldClose(window);
 }

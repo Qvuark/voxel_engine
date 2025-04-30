@@ -7,9 +7,6 @@
 #include <fstream>
 #include <sstream>
 
-
-
-
 Shader::Shader(unsigned int id) : id(id) { }
 
 void Shader::use()
@@ -39,7 +36,7 @@ Shader* loadShader(std::string vertexFile, std::string fragmentFile)
 		fragmentShaderFile.close();
 
 		vertexCode = vertexShaderStream.str();
-			fragmentCode = fragmentShaderStream.str();
+		fragmentCode = fragmentShaderStream.str();
 	}
 	catch(std::ifstream::failure &e)
 	{

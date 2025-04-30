@@ -8,14 +8,14 @@ class Camera
 {
 	void updateVectors();
 public:
-	vec3 x,y,z;
+	vec3 right, up, front;
 	float fov;
 	vec3 pos;
 	mat4 angle;
 	Camera(vec3 position, float fov);
 
 	void rotate(float x, float y, float z);
-	mat4 getProjection();
+	mat4 getPerspective();
 	mat4 getView();
 };
 #endif

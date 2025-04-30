@@ -68,13 +68,18 @@ int main()
 
     glClearColor(0.6f, 0.62f, 0.65f, 1);
 
-    Camera* camera = new Camera(vec3(0,0,1),radians(40.0f));
+    Camera* camera = new Camera(vec3(0,0,1),radians(50.0f));
     mat4 model(1.0f);
-    model = scale(model, vec3(0.5f,0.5f,0.5f));
+
+    float lastTime = glfwGetTime();
+    float delta = 0.0f;
 
     while(!Window::isShouldBeClosed())
     {
-        
+        float currentTime = glfwGetTime();
+        delta = currentTime - lastTime;
+        lastTime = currentTime;
+
         if (Events::jtPressed(GLFW_KEY_ESCAPE))
         {
             Window::setShouldClose(true);
@@ -87,12 +92,28 @@ int main()
         {
             glClearColor(0, 1, 0, 1);
         }
+        if (Events::pressed(GLFW_KEY_S))
+        {
+            camera->pos.z += delta;
+        }
+        if (Events::pressed(GLFW_KEY_W))
+        {
+            camera->pos.z -= delta;
+        }
+        if (Events::pressed(GLFW_KEY_A))
+        {
+            camera->pos.x += delta;
+        }
+        if (Events::pressed(GLFW_KEY_D))
+        {
+            camera->pos.x -= delta;
+        }
         glClear(GL_COLOR_BUFFER_BIT);
 
         //draw vao
         shader->use();
         shader->uniformMatrix("model", model);
-        shader->uniformMatrix("projview", camera->getProjection() * camera->getView());
+        shader->uniformMatrix("projview", camera->getPerspective() * camera->getView());
         texture->bind();
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES,0,6);

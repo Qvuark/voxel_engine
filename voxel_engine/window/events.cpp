@@ -3,6 +3,7 @@
 #include <GLFW/glfw3.h>
 #include "string.h"
 #include <algorithm>
+#include <iostream>
 #define MOUSE_BUTTONS 1024
 #define TOTAL_KEYS 1032
 
@@ -18,14 +19,14 @@ bool Events::_cursor_locked = false;
 
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
-	if (Events::_cursor_locked)
+	if (Events::_cursor_started)
 	{
 		Events::deltaX += xpos - Events::x;
 		Events::deltaY += ypos - Events::y;
 	}
 	else
 	{
-		Events::_cursor_started = true;
+		Events::_cursor_started = true;	
 	}
 	Events::x = xpos;
 	Events::y = ypos;
@@ -107,13 +108,15 @@ int Events::initialize()
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	glfwSetCursorPosCallback(window, cursor_position_callback);
 	glfwSetWindowSizeCallback(window, window_size_callback);
+
+	
 	return 0;
 }
 void Events::pullEvents()
 {
-	_currentFrame++;
 	deltaX = 0.0f;
 	deltaY = 0.0f;
 	glfwPollEvents();
+	_currentFrame++;
 }
 

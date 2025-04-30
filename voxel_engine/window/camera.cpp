@@ -9,17 +9,16 @@ Camera::Camera(vec3 position, float fov) : pos(position), fov(fov), angle(1.0f)
 
 void Camera::updateVectors()
 {
-	right = vec3(angle * vec4(1.0f, 0.0f, 0.0f, 1.0f));
-	up    = vec3(angle * vec4(0.0f, 1.0f, 0.0f, 1.0f));
-	front = vec3(angle * vec4(0.0f, 0.0f, -1.0f,1.0f));
+	right = vec3(angle * vec4(1, 0, 0, 1));
+	up    = vec3(angle * vec4(0, 1, 0, 1));
+	front = vec3(angle * vec4(0, 0,-1, 1));
 }
 
 void Camera::rotate(float x, float y, float z)
 {
-	angle = glm::rotate(angle, z, vec3(0.0f, 0.0f, 1.0f));
-	angle = glm::rotate(angle, z, vec3(0.0f, 1.0f, 0.0f));
-	angle = glm::rotate(angle, z, vec3(1.0f, 0.0f, 0.0f));
-	
+	angle = glm::rotate(angle, x, vec3(1, 0, 0));
+	angle = glm::rotate(angle, y, vec3(0, 1, 0));
+	angle = glm::rotate(angle, z, vec3(0, 0, 1));
 	updateVectors();
 }
 

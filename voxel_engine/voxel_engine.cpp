@@ -74,8 +74,12 @@ int main()
     float lastTime = glfwGetTime();
     float delta = 0.0f;
 
+    float camY = 0.0f;
+    float camX = 0.0f;
+
     while(!Window::isShouldBeClosed())
     {
+        Events::pullEvents();
         float currentTime = glfwGetTime();
         delta = currentTime - lastTime;
         lastTime = currentTime;
@@ -83,14 +87,6 @@ int main()
         if (Events::jtPressed(GLFW_KEY_ESCAPE))
         {
             Window::setShouldClose(true);
-        }
-        {
-        if (Events::jtClicked(GLFW_MOUSE_BUTTON_1))
-            glClearColor(1, 0, 0, 1);
-        }
-        if (Events::jtClicked(GLFW_MOUSE_BUTTON_2))
-        {
-            glClearColor(0, 1, 0, 1);
         }
         if (Events::pressed(GLFW_KEY_S))
         {
@@ -108,19 +104,24 @@ int main()
         {
             camera->pos.x -= delta;
         }
+        
+        camera->rotate(0,-Events::deltaX/Window::height, 0);
+        
+
         glClear(GL_COLOR_BUFFER_BIT);
 
         //draw vao
         shader->use();
         shader->uniformMatrix("model", model);
         shader->uniformMatrix("projview", camera->getPerspective() * camera->getView());
+
         texture->bind();
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES,0,6);
         glBindVertexArray(0);
 
         Window::swapBuffers();
-        Events::pullEvents();
+
     }
 
     delete shader;

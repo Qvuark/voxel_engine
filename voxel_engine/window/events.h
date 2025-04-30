@@ -22,6 +22,8 @@ public:
 	static bool jtClicked(int keycode);
 	static bool pressed(int keycode);
 	static bool jtPressed(int keycode);
+
+	static void toggleCursor();
 };
 
 #endif

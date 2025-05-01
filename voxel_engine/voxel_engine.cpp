@@ -88,6 +88,10 @@ int main()
         {
             Window::setShouldClose(true);
         }
+        if (Events::jtPressed(GLFW_KEY_TAB))
+        {
+            Events::toggleCursor();
+        }
         if (Events::pressed(GLFW_KEY_S))
         {
             camera->pos.z += delta;
@@ -98,11 +102,11 @@ int main()
         }
         if (Events::pressed(GLFW_KEY_A))
         {
-            camera->pos.x += delta;
+            camera->pos.x -= delta;
         }
         if (Events::pressed(GLFW_KEY_D))
         {
-            camera->pos.x -= delta;
+            camera->pos.x += delta;
         }
         
         camera->rotate(0,-Events::deltaX/Window::height, 0);
@@ -119,6 +123,8 @@ int main()
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES,0,6);
         glBindVertexArray(0);
+
+
 
         Window::swapBuffers();
 

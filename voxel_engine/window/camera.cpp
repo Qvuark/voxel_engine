@@ -16,7 +16,7 @@ void Camera::updateVectors()
 
 void Camera::rotate(float x, float y, float z)
 {
-	angle = glm::rotate(angle, x, vec3(1, 0, 0));
+	angle = glm::rotate(angle, x, vec3(1, 0, 0));		
 	angle = glm::rotate(angle, y, vec3(0, 1, 0));
 	angle = glm::rotate(angle, z, vec3(0, 0, 1));
 	updateVectors();

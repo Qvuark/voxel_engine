@@ -36,9 +36,10 @@ int Window::initialize(int width, int height, const char* title)
         glfwTerminate();
         return -1;
     }
+    glViewport(0, 0, width, height);
 
-    glfwSwapInterval(1);
-
+    Window::width = width;
+    Window::height = height;
     return 0;
 }
 bool Window::isShouldBeClosed()
@@ -52,6 +53,10 @@ void Window::setShouldClose(bool flag)
 void Window::swapBuffers()
 {
     glfwSwapBuffers(window);
+}
+void Window::setCursorMode(int mode)
+{
+    glfwSetInputMode(window, GLFW_CURSOR, mode);
 }
 void Window::destroyWindow()
 {

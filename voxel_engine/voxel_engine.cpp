@@ -8,6 +8,7 @@
 #include <exception>
 #include <iostream>
 
+#include "graphics/mesh.h"
 #include "window/camera.h"
 #include "loaders/png_loading.h"
 #include "graphics/textures.h"
@@ -26,6 +27,10 @@ std::vector<float> vertices =
     1.0f,-1.0f, 0.0f, 1.0f, 0.0f,
     1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
    -1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+};
+std::vector<int> attributes =
+{
+    3,2,0
 };
 
 int main() 
@@ -56,6 +61,7 @@ int main()
 
     glClearColor(0.6f, 0.62f, 0.65f, 1);
 
+    Mesh* mesh = new Mesh(vertices,attributes, 6);
     Camera* camera = new Camera(vec3(0,0,1),radians(70.0f));
     mat4 model(1.0f);
 
@@ -118,20 +124,13 @@ int main()
         shader->uniformMatrix("projview", camera->getPerspective() * camera->getView());
 
         texture->bind();
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES,0,6);
-        glBindVertexArray(0);
-
-
+        mesh->drawPrimitive(GL_TRIANGLES);
 
         Window::swapBuffers();
-
     }
-
     delete shader;
     delete texture;
-    glDeleteBuffers(1, &VBO);
-    glDeleteVertexArrays(1, &VAO);
+    delete mesh;
     
     Window::terminate();
     return 0;

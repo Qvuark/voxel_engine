@@ -20,7 +20,7 @@ add_executable(voxel_engine
 	"graphics/textures.h" 
 	"loaders/png_loading.h"
 	"window/camera.h"
- "graphics/mesh.cpp" "graphics/mesh.h")
+ "graphics/mesh.cpp" "graphics/mesh.h" "voxels/voxels.h" "voxels/voxels.cpp" "voxels/chunk.cpp")
 
 # Находим GLFW, установленную через vcpkg
 find_package(glfw3  CONFIG REQUIRED)

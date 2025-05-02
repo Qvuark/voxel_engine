@@ -15,7 +15,8 @@
 #include "graphics/shaders.h"
 #include "window/window.h"
 #include "window/events.h"
-
+#include "voxels/chunk.h"
+#include "voxels/voxels.h"
 
 std::vector<float> vertices =
 {
@@ -61,6 +62,7 @@ int main()
 
     glClearColor(0.6f, 0.62f, 0.65f, 1);
 
+    Chunk* chunk = new Chunk();
     Mesh* mesh = new Mesh(vertices,attributes, 6);
     Camera* camera = new Camera(vec3(0,0,1),radians(70.0f));
     mat4 model(1.0f);
@@ -130,6 +132,7 @@ int main()
     }
     delete shader;
     delete texture;
+    delete chunk;
     delete mesh;
     
     Window::terminate();

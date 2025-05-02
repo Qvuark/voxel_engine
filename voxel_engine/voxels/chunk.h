@@ -1,6 +1,8 @@
 #ifndef CHUNK_H
 #define CHUNK_H
 
+#include <cstdint>
+
 #define CHUNK_WIDTH 16
 #define CHUNK_HEIGHT 16
 #define CHUNK_DEPTH 16
@@ -13,19 +15,14 @@
 
 struct Voxel;
 
-namespace VoxelType 
-{
-	constexpr uint8_t AIR = 0;
-	constexpr uint8_t DIRT = 1;
-	constexpr uint8_t STONE = 2;
-}
-
 class Chunk
 {
 public:
 	Voxel *voxels;
 	Chunk();
 	~Chunk();
+	int calculateHeight(int x, int z) const;
+	uint8_t determineVoxelId(int x, int y, int z) const;
 	int getVoxelIndex(int x, int y, int z);
 };
 

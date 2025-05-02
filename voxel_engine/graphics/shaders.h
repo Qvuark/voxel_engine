@@ -8,9 +8,9 @@
 class Shader 
 {
 public:
-	Shader(unsigned int id);
+	Shader(unsigned id);
 	~Shader();
-	unsigned int id;
+	unsigned id;
 	void use();
 	void uniformMatrix(std::string name, glm::mat4 matrix);
 };

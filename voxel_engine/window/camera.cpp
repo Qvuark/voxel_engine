@@ -2,32 +2,34 @@
 #include "window.h"
 #include <glm/ext.hpp>
 
-Camera::Camera(vec3 position, float fov) : pos(position), fov(fov), angle(1.0f)
+Camera::Camera(vec3 position, float fov) : pos(position), fov(fov), orientation(quat(1, 0, 0, 0))
 {
 	updateVectors();
 }
-
 void Camera::updateVectors()
 {
-	right = vec3(angle * vec4(1, 0, 0, 1));
-	up    = vec3(angle * vec4(0, 1, 0, 1));
-	front = vec3(angle * vec4(0, 0,-1, 1));
+    front = normalize(orientation * vec3(0, 0, -1));
+    right = normalize(cross(front, vec3(0, 1, 0)));
+    up    = normalize(cross(right, front));
 }
 
-void Camera::rotate(float x, float y, float z)
+void Camera::rotate(float pitch, float yaw, float roll)
 {
-	angle = glm::rotate(angle, x, vec3(1, 0, 0));		
-	angle = glm::rotate(angle, y, vec3(0, 1, 0));
-	angle = glm::rotate(angle, z, vec3(0, 0, 1));
-	updateVectors();
+    quat qYaw = angleAxis(yaw, vec3(0, 1, 0));
+    quat qPitch = angleAxis(pitch, vec3(1, 0, 0));
+
+    orientation = qYaw * orientation * qPitch;
+    orientation = normalize(orientation);
+
+    updateVectors();
 }
 
-mat4 Camera::getPerspective()
+mat4 Camera::getPerspective() const
 {
 	float aspect = static_cast<float>(Window::width) / static_cast<float> (Window::height);
 	return perspective(fov, aspect, 0.1f, 100.0f);
 }
-mat4 Camera::getView()
+mat4 Camera::getView() const
 {
 	return lookAt(pos, pos + front, up);
 }

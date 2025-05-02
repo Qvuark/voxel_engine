@@ -68,18 +68,23 @@ int main()
 
     glClearColor(0.6f, 0.62f, 0.65f, 1);
 
-    Camera* camera = new Camera(vec3(0,0,1),radians(50.0f));
+    Camera* camera = new Camera(vec3(0,0,1),radians(70.0f));
     mat4 model(1.0f);
 
     float lastTime = glfwGetTime();
     float delta = 0.0f;
 
-    float camY = 0.0f;
-    float camX = 0.0f;
+    float sensitivityX = 0.004f;
+    float sensitivityY = 0.0025f;
+
+    float yaw = 0.0f;
+    float pitch = 0.0f;
 
     while(!Window::isShouldBeClosed())
     {
         Events::pullEvents();
+
+
         float currentTime = glfwGetTime();
         delta = currentTime - lastTime;
         lastTime = currentTime;
@@ -92,25 +97,30 @@ int main()
         {
             Events::toggleCursor();
         }
-        if (Events::pressed(GLFW_KEY_S))
-        {
-            camera->pos.z += delta;
-        }
         if (Events::pressed(GLFW_KEY_W))
         {
-            camera->pos.z -= delta;
+            camera->pos += camera->front * delta;
         }
         if (Events::pressed(GLFW_KEY_A))
         {
-            camera->pos.x -= delta;
+            camera->pos -= camera->right * delta;
+        }
+        if (Events::pressed(GLFW_KEY_S))
+        {
+            camera->pos -= camera->front * delta;;
         }
         if (Events::pressed(GLFW_KEY_D))
         {
-            camera->pos.x += delta;
+            camera->pos += camera->right * delta;;
         }
-        
-        camera->rotate(0,-Events::deltaX/Window::height, 0);
-        
+
+        float pitchDelta = -Events::deltaY * sensitivityY;
+        float yawDelta = -Events::deltaX * sensitivityX;
+        static float pitch = 0.0f;
+        pitch += pitchDelta;
+        pitch = clamp(pitch, -89.0f, 89.0f); 
+
+        camera->rotate(pitchDelta, yawDelta);
 
         glClear(GL_COLOR_BUFFER_BIT);
 

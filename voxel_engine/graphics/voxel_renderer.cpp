@@ -3,22 +3,20 @@
 #include "../voxels/chunk.h"
 #include "../voxels/voxels.h"
 
-#define IS_IN_CHUNK(X,Y,Z) ( \
-    ((X) >= 0) && ((X) < CHUNK_WIDTH)  && \
-    ((Y) >= 0) && ((Y) < CHUNK_HEIGHT) && \
-    ((Z) >= 0) && ((Z) < CHUNK_DEPTH)  \
-)
-#define VOXEL(X, Y, Z) ( \
-    chunk->voxels[(X) + (Z) * CHUNK_WIDTH + (Y) * CHUNK_WIDTH * CHUNK_DEPTH] \
-)
-#define VERTEX(INDEX, X,Y,Z, U,V, L) buffer[INDEX+0] = (X);\
-                                  buffer[INDEX+1] = (Y);\
-                                  buffer[INDEX+2] = (Z);\
-                                  buffer[INDEX+3] = (U);\
-                                  buffer[INDEX+4] = (V);\
-                                  buffer[INDEX+5] = (L);\
-                                  INDEX += VERTEX_SIZE;
 #define VERTEX_SIZE (3 + 2 + 1)
+
+#define IS_IN_CHUNK(X,Y,Z) ((X) >= 0 && (X) < CHUNK_WIDTH && (Y) >= 0 && (Y) < CHUNK_HEIGHT && (Z) >= 0 && (Z) < CHUNK_DEPTH)
+#define VOXEL(X,Y,Z) (chunk->voxels[((Y) * CHUNK_DEPTH + (Z)) * CHUNK_WIDTH + (X)])
+#define IS_BLOCKED(X,Y,Z) ((IS_IN_CHUNK(X, Y, Z)) && VOXEL(X, Y, Z).id)
+
+#define VERTEX(INDEX, X,Y,Z, U,V, L) buffer[INDEX+0] = (X);\
+								  buffer[INDEX+1] = (Y);\
+								  buffer[INDEX+2] = (Z);\
+								  buffer[INDEX+3] = (U);\
+								  buffer[INDEX+4] = (V);\
+								  buffer[INDEX+5] = (L);\
+								  INDEX += VERTEX_SIZE;
+
 
 
 
@@ -45,32 +43,32 @@ void VoxelRenderer::addVoxelFace(std::vector<float>& buffer, float x, float y, f
     if (dx != 0) 
     {
         VERTEX(index, x, y - 0.5f, z - 0.5f, u, v, light)
-        VERTEX(index, x, y + 0.5f, z - 0.5f, u, v + 1.0f / 32, light)
-        VERTEX(index, x, y + 0.5f, z + 0.5f, u + 1.0f / 32, v + 1.0f / 32, light)
+        VERTEX(index, x, y + 0.5f, z - 0.5f, u, v + 1.0f / 16, light)
+        VERTEX(index, x, y + 0.5f, z + 0.5f, u + 1.0f / 16, v + 1.0f / 16, light)
         
         VERTEX(index, x, y - 0.5f, z - 0.5f, u, v, light)
-        VERTEX(index, x, y + 0.5f, z + 0.5f, u + 1.0f / 32, v + 1.0f / 32, light)
-        VERTEX(index, x, y - 0.5f, z + 0.5f, u + 1.0f / 32, v, light)
+        VERTEX(index, x, y + 0.5f, z + 0.5f, u + 1.0f / 16, v + 1.0f / 16, light)
+        VERTEX(index, x, y - 0.5f, z + 0.5f, u + 1.0f / 16, v, light)
     }
     else if (dy != 0) 
     {
         VERTEX(index, x - 0.5f, y, z - 0.5f, u, v, light)
-        VERTEX(index, x - 0.5f, y, z + 0.5f, u, v + 1.0f / 32, light)
-        VERTEX(index, x + 0.5f, y, z + 0.5f, u + 1.0f / 32, v + 1.0f / 32, light)
+        VERTEX(index, x - 0.5f, y, z + 0.5f, u, v + 1.0f / 16, light)
+        VERTEX(index, x + 0.5f, y, z + 0.5f, u + 1.0f / 16, v + 1.0f / 16, light)
 
         VERTEX(index, x - 0.5f, y, z - 0.5f, u, v, light)
-        VERTEX(index, x + 0.5f, y, z + 0.5f, u + 1.0f / 32, v + 1.0f / 32, light)
-        VERTEX(index, x + 0.5f, y, z - 0.5f, u + 1.0f / 32, v, light)
+        VERTEX(index, x + 0.5f, y, z + 0.5f, u + 1.0f / 16, v + 1.0f / 16, light)
+        VERTEX(index, x + 0.5f, y, z - 0.5f, u + 1.0f / 16, v, light)
     }
     else if (dz != 0) 
     {
         VERTEX(index, x - 0.5f, y - 0.5f, z, u, v, light)
-        VERTEX(index, x - 0.5f, y + 0.5f, z, u, v + 1.0f / 32, light)
-        VERTEX(index, x + 0.5f, y + 0.5f, z, u + 1.0f / 32, v + 1.0f / 32, light)
+        VERTEX(index, x - 0.5f, y + 0.5f, z, u, v + 1.0f / 16, light)
+        VERTEX(index, x + 0.5f, y + 0.5f, z, u + 1.0f / 16, v + 1.0f / 16, light)
 
         VERTEX(index, x - 0.5f, y - 0.5f, z, u, v, light)
-        VERTEX(index, x + 0.5f, y + 0.5f, z, u + 1.0f / 32, v + 1.0f / 32, light)
-        VERTEX(index, x + 0.5f, y - 0.5f, z, u + 1.0f / 32, v, light)
+        VERTEX(index, x + 0.5f, y + 0.5f, z, u + 1.0f / 16, v + 1.0f / 16, light)
+        VERTEX(index, x + 0.5f, y - 0.5f, z, u + 1.0f / 16, v, light)
     }
 }
 

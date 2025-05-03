@@ -15,12 +15,6 @@
 
 struct Voxel;
 
-struct chunk_attributes
-{
-	int pos;
-	int uv;
-	int lightning;
-};
 class Chunk
 {
 public:

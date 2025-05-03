@@ -1,26 +1,25 @@
 #include "mesh.h"
 #include <GL/glew.h>
 
-Mesh::Mesh(const std::vector<float> &buffer, const std::vector<int> &attributes, size_t vertices) : vertices(vertices)
+Mesh::Mesh(const std::vector<float>& buffer, size_t vertices, const std::vector<int>& attributes) : vertices(vertices)
 {
-	if(attributes.empty()) 
+	if (attributes.empty())
 	{
-		std::cerr<<"Attributes array cannot be empty"<<std::endl;
+		std::cerr << "Attributes array cannot be empty" << std::endl;
 	}
 	vertices = 0;
-	for (int attr : attributes) 
+	for (int attr : attributes)
 	{
 		vertices += attr;
 	}
 	if (buffer.size() % vertices != 0)
 	{
-		std::cerr<<"Buffer size is wrong" << std::endl;
+		std::cerr << "Buffer size is wrong" << std::endl;
 	}
 	//atributes
-	
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
-	
+
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(float), buffer.data(), GL_STATIC_DRAW);

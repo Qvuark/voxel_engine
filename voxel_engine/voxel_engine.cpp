@@ -17,6 +17,7 @@
 #include "window/events.h"
 #include "voxels/chunk.h"
 #include "voxels/voxels.h"
+#include "graphics/voxel_renderer.h"
 
 std::vector<float> vertices =
 {
@@ -28,10 +29,6 @@ std::vector<float> vertices =
     1.0f,-1.0f, 0.0f, 1.0f, 0.0f,
     1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
    -1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-};
-std::vector<int> attributes =
-{
-    3,2,0
 };
 
 int main() 
@@ -59,13 +56,15 @@ int main()
     }
     //create VAO
 
-
+    VoxelRenderer renderer(1024 * 1024 * 8);
+    Chunk* chunk = new Chunk();
+    Mesh* mesh = renderer.render(chunk);
     glClearColor(0.6f, 0.62f, 0.65f, 1);
 
-    Chunk* chunk = new Chunk();
-    Mesh* mesh = new Mesh(vertices,attributes, 6);
-    Camera* camera = new Camera(vec3(0,0,1),radians(70.0f));
+    Camera* camera = new Camera(vec3(0,0,10),radians(70.0f));
+
     mat4 model(1.0f);
+    model = translate(model, vec3(0.5f, 0, 0));
 
     float lastTime = glfwGetTime();
     float delta = 0.0f;
@@ -75,7 +74,7 @@ int main()
 
     float yaw = 0.0f;
     float pitch = 0.0f;
-
+    float speed = 5;
     while(!Window::isShouldBeClosed())
     {
         Events::pullEvents();
@@ -95,19 +94,19 @@ int main()
         }
         if (Events::pressed(GLFW_KEY_W))
         {
-            camera->pos += camera->front * delta;
+            camera->pos += camera->front * delta * speed;
         }
         if (Events::pressed(GLFW_KEY_A))
         {
-            camera->pos -= camera->right * delta;
+            camera->pos -= camera->right * delta * speed;
         }
         if (Events::pressed(GLFW_KEY_S))
         {
-            camera->pos -= camera->front * delta;;
+            camera->pos -= camera->front * delta * speed;
         }
         if (Events::pressed(GLFW_KEY_D))
         {
-            camera->pos += camera->right * delta;;
+            camera->pos += camera->right * delta * speed;
         }
 
         float pitchDelta = -Events::deltaY * sensitivityY;

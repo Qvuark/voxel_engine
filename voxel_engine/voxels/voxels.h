@@ -6,7 +6,6 @@
 struct Voxel
 {
 	uint8_t id;
-
 };
 
 #endif

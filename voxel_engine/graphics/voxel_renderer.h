@@ -11,6 +11,7 @@ class VoxelRenderer
 {
 public:
 	std::vector<float> buffer;
+	size_t capacity;
 	VoxelRenderer(size_t capacity);
 	~VoxelRenderer();
 

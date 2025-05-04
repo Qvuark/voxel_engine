@@ -2,7 +2,7 @@
 #include "voxels.h"
 #include <math.h>
 
-Chunk::Chunk()
+Chunk::Chunk(int xpos, int ypos, int zpos) : x(xpos), y(ypos), z(zpos)
 {
     voxels = new Voxel[CHUNK_VOLUME];
     for (int y = 0; y < CHUNK_HEIGHT; y++) 

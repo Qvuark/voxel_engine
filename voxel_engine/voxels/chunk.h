@@ -18,8 +18,9 @@ struct Voxel;
 class Chunk
 {
 public:
+	int x, y, z;
 	Voxel *voxels;
-	Chunk();
+	Chunk(int x, int y, int z);
 	~Chunk();
 	int calculateHeight(int x, int z) const;
 	uint8_t determineVoxelId(int x, int y, int z) const;

@@ -1,4 +1,5 @@
-﻿#include <GL/glew.h>
+﻿
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
@@ -30,18 +31,18 @@ std::vector<float> vertices =
    -1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
 };
 
-int main()
+int main() 
 {
-    int currentWidth = Window::width;
+    int currentWidth = Window::width;  
     int currentHeight = Window::height;
 
     Window::initialize(currentWidth, currentHeight, "window");
     Events::initialize();
-
+    
     Shader* shader = loadShader("D:/DEV/c++/voxel_engine/res/main.vert", "D:/DEV/c++/voxel_engine/res/main.frag");
-    if (shader == nullptr)
-    {
-        std::cerr << "couldnt load the shader" << std::endl;
+    if (shader == nullptr) 
+    { 
+        std::cerr << "couldnt load the shader"<<std::endl;
         Window::terminate();
         return 1;
     }
@@ -56,15 +57,26 @@ int main()
     //create VAO
 
     VoxelRenderer renderer(1024 * 1024);
-    Chunk* chunk = new Chunk();
-    Mesh* mesh = renderer.render(chunk);
+    std::vector<Chunk*>   chunks;
+    std::vector<Mesh*>    meshes;
+    chunks.reserve(4 * 4);
+    meshes.reserve(4 * 4);
 
+    // 3) Сгенерируем чанки и их меши
+    for (int cz = 0; cz < 4; ++cz) {
+        for (int cx = 0; cx < 4; ++cx) {
+            Chunk* chunk = new Chunk();
+            chunks.push_back(chunk);
+
+            Mesh* mesh = renderer.render(chunk);
+            meshes.push_back(mesh);
+        }
+    }
     glClearColor(0.6f, 0.62f, 0.65f, 1);
     glEnable(GL_DEPTH_TEST);
-    //glEnable(GL_LIGHTING);
-    glEnable(GL_CULL_FACE);
+    //glEnable(GL_CULL_FACE);
 
-    Camera* camera = new Camera(vec3(5, 5, 20), radians(70.0f));
+    Camera* camera = new Camera(vec3(5,5,20),radians(70.0f));
 
     mat4 model(1.0f);
     model = translate(model, vec3(0.5f, 0, 0));
@@ -78,7 +90,7 @@ int main()
     float yaw = 0.0f;
     float pitch = 0.0f;
     float speed = 5;
-    while (!Window::isShouldBeClosed())
+    while(!Window::isShouldBeClosed())
     {
         Events::pullEvents();
 
@@ -116,7 +128,7 @@ int main()
         float yawDelta = -Events::deltaX * sensitivityX;
         static float pitch = 0.0f;
         pitch += pitchDelta;
-        pitch = clamp(pitch, -89.0f, 89.0f);
+        pitch = clamp(pitch, -89.0f, 89.0f); 
 
         camera->rotate(pitchDelta, yawDelta);
 
@@ -124,19 +136,35 @@ int main()
 
         //draw vao
         shader->use();
-        shader->uniformMatrix("model", model);
         shader->uniformMatrix("projview", camera->getPerspective() * camera->getView());
-
         texture->bind();
-        mesh->drawPrimitive(GL_TRIANGLES);
 
+        // 4) Для каждого чанка — своя модельная матрица
+        int idx = 0;
+        for (int cz = 0; cz < 4; ++cz) {
+            for (int cx = 0; cx < 4; ++cx) {
+                // сместим каждый чанк на его координаты в «мире» (ширина и глубина CHUNK_WIDTH/DEPTH)
+                glm::mat4 chunkModel = glm::translate(
+                    glm::mat4(1.0f),
+                    glm::vec3(
+                        float(cx * CHUNK_WIDTH),
+                        0.0f,
+                        float(cz * CHUNK_DEPTH)
+                    )
+                );
+                shader->uniformMatrix("model", chunkModel);
+
+                // рисуем меш чанка
+                meshes[idx++]->drawPrimitive(GL_TRIANGLES);
+            }
+        }
         Window::swapBuffers();
     }
     delete shader;
     delete texture;
-    delete chunk;
-    delete mesh;
-
+    for (auto m : meshes)   delete m;
+    for (auto c : chunks)   delete c;
+    
     Window::terminate();
     return 0;
 }

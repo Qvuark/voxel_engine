@@ -17,9 +17,6 @@
 								  buffer[INDEX+5] = (L);\
 								  INDEX += VERTEX_SIZE;
 
-
-
-
 VoxelRenderer::VoxelRenderer(size_t capacity) : capacity(capacity)
 {
     buffer.resize(capacity * VERTEX_SIZE * 6);
@@ -36,42 +33,76 @@ const std::vector<std::tuple<int, int, int, float>> directions =
     {0, 0, 1, 0.9f},   
     {0, 0, -1, 0.8f}, 
 };
-
-void VoxelRenderer::addVoxelFace(std::vector<float>& buffer, float x, float y, float z, float u, float v, float light, int dx, int dy, int dz) const
+void VoxelRenderer::addVoxelFace(std::vector<float>& buffer, size_t& index, float x, float y, float z, float u, float v, float light, int dx, int dy, int dz) const
 {
-    static size_t index = 0;
-    if (dx != 0) 
-    {
-        VERTEX(index, x, y - 0.5f, z - 0.5f, u, v, light)
-        VERTEX(index, x, y + 0.5f, z - 0.5f, u, v + 1.0f / 16, light)
-        VERTEX(index, x, y + 0.5f, z + 0.5f, u + 1.0f / 16, v + 1.0f / 16, light)
-        
-        VERTEX(index, x, y - 0.5f, z - 0.5f, u, v, light)
-        VERTEX(index, x, y + 0.5f, z + 0.5f, u + 1.0f / 16, v + 1.0f / 16, light)
-        VERTEX(index, x, y - 0.5f, z + 0.5f, u + 1.0f / 16, v, light)
-    }
-    else if (dy != 0) 
-    {
-        VERTEX(index, x - 0.5f, y, z - 0.5f, u, v, light)
-        VERTEX(index, x - 0.5f, y, z + 0.5f, u, v + 1.0f / 16, light)
-        VERTEX(index, x + 0.5f, y, z + 0.5f, u + 1.0f / 16, v + 1.0f / 16, light)
+    const float half = 0.5f;
+    const float uvsize = 1.0f / 16.0f;
 
-        VERTEX(index, x - 0.5f, y, z - 0.5f, u, v, light)
-        VERTEX(index, x + 0.5f, y, z + 0.5f, u + 1.0f / 16, v + 1.0f / 16, light)
-        VERTEX(index, x + 0.5f, y, z - 0.5f, u + 1.0f / 16, v, light)
-    }
-    else if (dz != 0) 
-    {
-        VERTEX(index, x - 0.5f, y - 0.5f, z, u, v, light)
-        VERTEX(index, x - 0.5f, y + 0.5f, z, u, v + 1.0f / 16, light)
-        VERTEX(index, x + 0.5f, y + 0.5f, z, u + 1.0f / 16, v + 1.0f / 16, light)
+    float cx = x + dx * half;
+    float cy = y + dy * half;
+    float cz = z + dz * half;
 
-        VERTEX(index, x - 0.5f, y - 0.5f, z, u, v, light)
-        VERTEX(index, x + 0.5f, y + 0.5f, z, u + 1.0f / 16, v + 1.0f / 16, light)
-        VERTEX(index, x + 0.5f, y - 0.5f, z, u + 1.0f / 16, v, light)
+    if (dy == 1) 
+    {
+        VERTEX(index, cx - half, cy, cz - half, u + uvsize, v, light);
+        VERTEX(index, cx - half, cy, cz + half, u + uvsize, v + uvsize, light);
+        VERTEX(index, cx + half, cy, cz + half, u, v + uvsize, light);
+
+        VERTEX(index, cx - half, cy, cz - half, u + uvsize, v, light);
+        VERTEX(index, cx + half, cy, cz + half, u, v + uvsize, light);
+        VERTEX(index, cx + half, cy, cz - half, u, v, light);
+    }
+    else if (dy == -1) 
+    {
+        VERTEX(index, cx - half, cy, cz - half, u, v, light);
+        VERTEX(index, cx + half, cy, cz + half, u + uvsize, v + uvsize, light);
+        VERTEX(index, cx - half, cy, cz + half, u, v + uvsize, light);
+
+        VERTEX(index, cx - half, cy, cz - half, u, v, light);
+        VERTEX(index, cx + half, cy, cz - half, u + uvsize, v, light);
+        VERTEX(index, cx + half, cy, cz + half, u + uvsize, v + uvsize, light);
+    }
+    else if (dx == 1) 
+    {
+        VERTEX(index, cx, cy - half, cz - half, u + uvsize, v, light);
+        VERTEX(index, cx, cy + half, cz - half, u + uvsize, v + uvsize, light);
+        VERTEX(index, cx, cy + half, cz + half, u, v + uvsize, light);
+
+        VERTEX(index, cx, cy - half, cz - half, u + uvsize, v, light);
+        VERTEX(index, cx, cy + half, cz + half, u, v + uvsize, light);
+        VERTEX(index, cx, cy - half, cz + half, u, v, light);
+    }
+    else if (dx == -1) 
+    {
+        VERTEX(index, cx, cy - half, cz - half, u, v, light);
+        VERTEX(index, cx, cy + half, cz + half, u + uvsize, v + uvsize, light);
+        VERTEX(index, cx, cy + half, cz - half, u, v + uvsize, light);
+
+        VERTEX(index, cx, cy - half, cz - half, u, v, light);
+        VERTEX(index, cx, cy - half, cz + half, u + uvsize, v, light);
+        VERTEX(index, cx, cy + half, cz + half, u + uvsize, v + uvsize, light);
+    }
+    else if (dz == 1) 
+    {
+        VERTEX(index, cx - half, cy - half, cz, u, v, light);
+        VERTEX(index, cx + half, cy + half, cz, u + uvsize, v + uvsize, light);
+        VERTEX(index, cx - half, cy + half, cz, u, v + uvsize, light);
+
+        VERTEX(index, cx - half, cy - half, cz, u, v, light);
+        VERTEX(index, cx + half, cy - half, cz, u + uvsize, v, light);
+        VERTEX(index, cx + half, cy + half, cz, u + uvsize, v + uvsize, light);
+    }
+    else if (dz == -1) 
+    {
+        VERTEX(index, cx - half, cy - half, cz, u + uvsize, v, light);
+        VERTEX(index, cx - half, cy + half, cz, u + uvsize, v + uvsize, light);
+        VERTEX(index, cx + half, cy + half, cz, u, v + uvsize, light);
+
+        VERTEX(index, cx - half, cy - half, cz, u + uvsize, v, light);
+        VERTEX(index, cx + half, cy + half, cz, u, v + uvsize, light);
+        VERTEX(index, cx + half, cy - half, cz, u, v, light);
     }
 }
-
 Mesh* VoxelRenderer::render(Chunk* chunk)
 {
     size_t index = 0; 
@@ -93,7 +124,7 @@ Mesh* VoxelRenderer::render(Chunk* chunk)
                 {
                     if (!isVoxelBlocked(chunk, x + dx, y + dy, z + dz)) 
                     {
-                        addVoxelFace(buffer, x + dx * 0.5f, y + dy * 0.5f, z + dz * 0.5f, u, v, light, dx, dy, dz);
+                        addVoxelFace(buffer, index, float(x), float(y), float(z), u, v, light, dx, dy, dz);
                     }
                 }
             }

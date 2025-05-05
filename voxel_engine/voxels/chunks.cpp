@@ -14,9 +14,16 @@ Chunks::Chunks(int w, int h, int d) : width(w), height(h), depth(d)
 			for (int x = 0; x < width; x++, index++)
 			{
 				Chunk* chunk = new Chunk(x,y,z);
-				chunks[index] = chunk;
+		    	chunks[index] = chunk;
 			}
 		}
 	}
 }
-
+Chunks::~Chunks()
+{
+	for (int i = 0; i < volume; i++)
+	{
+		delete chunks[i];
+	}
+	delete[] chunks;
+}

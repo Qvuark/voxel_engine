@@ -24,24 +24,3 @@ Chunk::~Chunk()
 {
 	delete[] voxels;
 }
-int Chunk::calculateHeight(int x, int z) const
-{
-    float noise = (sin(x * NOISE_FREQUENCY) * NOISE_AMPLITUDE + NOISE_AMPLITUDE);
-    return static_cast<int>(noise * SURFACE_SCALE);
-}
-uint8_t Chunk::determineVoxelId(int x, int y, int z) const
-{
-    const int surfaceHeight = calculateHeight(x, z);
-    uint8_t id = 0; 
-
-    if (y <= surfaceHeight) 
-    {
-        id = (y <= STONE_LAYER_HEIGHT) ? 2 : 1;
-    }
-
-    return id;
-}
-int Chunk::getVoxelIndex(int x, int y, int z)
-{
-    return x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
-}

@@ -15,6 +15,7 @@
 #include "window/window.h"
 #include "window/events.h"
 #include "voxels/chunk.h"
+#include "voxels/chunks.h"
 #include "voxels/voxels.h"
 #include "graphics/voxel_renderer.h"
 
@@ -53,11 +54,16 @@ int main()
         Window::terminate();
         return 1;
     }
-    //create VAO
-
+    Chunks* chunks = new Chunks(4, 1, 4);
+    Mesh** meshes = new Mesh * [chunks->volume];
     VoxelRenderer renderer(1024 * 1024);
-    Chunk* chunk = new Chunk();
-    Mesh* mesh = renderer.render(chunk);
+
+    for (int i = 0; i < chunks->volume; i++)
+    {
+        Mesh* mesh = renderer.render(chunks->chunks[i]);
+        meshes[i] = mesh;
+    }
+
 
     glClearColor(0.6f, 0.62f, 0.65f, 1);
     glEnable(GL_DEPTH_TEST);
@@ -65,9 +71,6 @@ int main()
     glEnable(GL_CULL_FACE);
 
     Camera* camera = new Camera(vec3(5, 5, 20), radians(70.0f));
-
-    mat4 model(1.0f);
-    model = translate(model, vec3(0.5f, 0, 0));
 
     float lastTime = glfwGetTime();
     float delta = 0.0f;
@@ -124,18 +127,25 @@ int main()
 
         //draw vao
         shader->use();
-        shader->uniformMatrix("model", model);
         shader->uniformMatrix("projview", camera->getPerspective() * camera->getView());
-
         texture->bind();
-        mesh->drawPrimitive(GL_TRIANGLES);
+
+        mat4 model;
+        for (size_t i = 0; i < chunks->volume; i++)
+        {
+            Chunk* chunk = chunks->chunks[i];
+            Mesh* mesh = meshes[i];
+            mat4 model(1.0f);
+            glm::translate(model, vec3(chunk->x * CHUNK_WIDTH, chunk->y * CHUNK_HEIGHT, chunk->z * CHUNK_DEPTH));
+            shader->uniformMatrix("model", model);
+            mesh->drawPrimitive(GL_TRIANGLES);
+        }
 
         Window::swapBuffers();
     }
     delete shader;
     delete texture;
-    delete chunk;
-    delete mesh;
+
 
     Window::terminate();
     return 0;

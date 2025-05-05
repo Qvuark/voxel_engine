@@ -7,7 +7,7 @@
 
 #define IS_IN_CHUNK(X,Y,Z) ((X) >= 0 && (X) < CHUNK_WIDTH && (Y) >= 0 && (Y) < CHUNK_HEIGHT && (Z) >= 0 && (Z) < CHUNK_DEPTH)
 #define VOXEL(X,Y,Z) (chunk->voxels[((Y) * CHUNK_DEPTH + (Z)) * CHUNK_WIDTH + (X)])
-#define IS_BLOCKED(X,Y,Z) ((IS_IN_CHUNK(X, Y, Z)) && VOXEL(X, Y, Z).id)
+#define IS_BLOCKED(X,Y,Z) ((!IS_IN_CHUNK(X, Y, Z)) || VOXEL(X, Y, Z).id)
 
 #define VERTEX(INDEX, X,Y,Z, U,V, L) buffer[INDEX+0] = (X);\
 								  buffer[INDEX+1] = (Y);\

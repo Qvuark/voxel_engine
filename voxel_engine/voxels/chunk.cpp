@@ -2,8 +2,8 @@
 #include "voxels.h"
 #include <math.h>
 
-float Chunk::NOISE_FREQUENCY = 0.6f;
-float Chunk::NOISE_AMPLITUDE = 0.9f;
+float Chunk::NOISE_FREQUENCY = 0.4f;
+float Chunk::NOISE_AMPLITUDE = 0.8f;
 int Chunk::SURFACE_SCALE = 10;
 int Chunk::STONE_LAYER_HEIGHT = 1;
 
@@ -16,10 +16,12 @@ Chunk::Chunk(int xpos, int ypos, int zpos) : x(xpos), y(ypos), z(zpos)
         {
             for (int lx = 0; lx < CHUNK_WIDTH; lx++) 
             {
+                int globalX = lx + x * CHUNK_WIDTH;
+                int globalZ = lz + z * CHUNK_DEPTH;
                 int index = getVoxelIndex(lx, ly, lz);
                 if (index != -1) 
                 {
-                    voxels[index].id = determineVoxelId(lx, ly, lz);
+                    voxels[index].id = determineVoxelId(globalX, ly, globalZ);
                 }
             }
         }

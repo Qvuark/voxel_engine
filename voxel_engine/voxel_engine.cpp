@@ -80,7 +80,7 @@ int main()
 
     float yaw = 0.0f;
     float pitch = 0.0f;
-    float speed = 5;
+    float speed = 25;
     while (!Window::isShouldBeClosed())
     {
         Events::pullEvents();
@@ -135,8 +135,7 @@ int main()
         {
             Chunk* chunk = chunks->chunks[i];
             Mesh* mesh = meshes[i];
-            mat4 model(1.0f);
-            glm::translate(model, vec3(chunk->x * CHUNK_WIDTH, chunk->y * CHUNK_HEIGHT, chunk->z * CHUNK_DEPTH));
+            mat4 model = glm::translate(mat4(1.0f), vec3(chunk->x * CHUNK_WIDTH, chunk->y * CHUNK_HEIGHT, chunk->z * CHUNK_DEPTH));
             shader->uniformMatrix("model", model);
             mesh->drawPrimitive(GL_TRIANGLES);
         }

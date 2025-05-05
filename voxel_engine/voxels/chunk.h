@@ -8,16 +8,18 @@
 #define CHUNK_DEPTH 16
 #define CHUNK_VOLUME (CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_DEPTH)
 
-#define NOISE_FREQUENCY 0.3f
-#define NOISE_AMPLITUDE 0.5f
-#define SURFACE_SCALE 10
-#define STONE_LAYER_HEIGHT 2
+
 
 struct Voxel;
 
 class Chunk
 {
 public:
+	static float NOISE_FREQUENCY;
+	static float NOISE_AMPLITUDE;
+	static int SURFACE_SCALE;
+	static int STONE_LAYER_HEIGHT;
+
 	int x, y, z;
 	Voxel *voxels;
 	Chunk(int x, int y, int z);

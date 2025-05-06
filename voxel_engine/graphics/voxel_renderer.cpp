@@ -103,7 +103,7 @@ void VoxelRenderer::addVoxelFace(std::vector<float>& buffer, size_t& index, floa
         VERTEX(index, cx + half, cy - half, cz, u, v, light);
     }
 }
-Mesh* VoxelRenderer::render(Chunk* chunk)
+Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks)
 {
     size_t index = 0; 
     
@@ -122,7 +122,7 @@ Mesh* VoxelRenderer::render(Chunk* chunk)
 
                 for (const auto& [dx, dy, dz, light] : directions) 
                 {
-                    if (!isVoxelBlocked(chunk, x + dx, y + dy, z + dz)) 
+                    if (!IS_BLOCKED(x + dx, y + dy, z + dz)) 
                     {
                         addVoxelFace(buffer, index, float(x), float(y), float(z), u, v, light, dx, dy, dz);
                     }

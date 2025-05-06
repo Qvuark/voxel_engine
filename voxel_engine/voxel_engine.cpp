@@ -58,9 +58,29 @@ int main()
     Mesh** meshes = new Mesh * [chunks->volume];
     VoxelRenderer renderer(1024 * 1024);
 
-    for (int i = 0; i < chunks->volume; i++)
+    Chunk* closeChunks[27];
+    for (size_t i = 0; i < chunks->volume; i++)
     {
-        Mesh* mesh = renderer.render(chunks->chunks[i]);
+        Chunk* chunk = chunks->chunks[i];
+        for (int i = 0; i < 27; i++)
+            closeChunks[i] = nullptr;
+        for (size_t j = 0; j < chunks->volume; j++)
+        {
+            Chunk* other = chunks->chunks[j];
+
+            int ox = other->x - chunk->x;
+            int oy = other->y - chunk->y;
+            int oz = other->z - chunk->z;
+
+            if (abs(ox) > 1 || abs(oy) > 1 || abs(oz) > 1)
+                continue;
+            ox++;
+            oy++;
+            oz++;
+            closeChunks[(oy * 3 * oz) * 3 + ox] = other;
+        }
+            
+        Mesh* mesh = renderer.render(chunk, (const Chunk**)closeChunks);
         meshes[i] = mesh;
     }
 

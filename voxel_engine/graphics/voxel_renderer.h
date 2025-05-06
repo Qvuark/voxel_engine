@@ -22,7 +22,7 @@ public:
 		float x, float y, float z,
 		float u, float v, float light,
 		int dx, int dy, int dz) const;
-	Mesh* render(Chunk* chunk);
+	Mesh* render(Chunk* chunk, const Chunk** chunks);
 };
 
 #endif

@@ -21,7 +21,7 @@ public:
 	static int STONE_LAYER_HEIGHT;
 
 	int x, y, z;
-	Voxel *voxels;
+	Voxel* voxels;
 	Chunk(int x, int y, int z);
 	~Chunk();
 	int calculateHeight(int x, int z) const;

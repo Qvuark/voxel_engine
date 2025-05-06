@@ -56,6 +56,7 @@ int main()
     }
     Chunks* chunks = new Chunks(4, 1, 4);
     Mesh** meshes = new Mesh * [chunks->volume];
+    
     VoxelRenderer renderer(1024 * 1024);
 
     Chunk* closeChunks[27];
@@ -77,9 +78,9 @@ int main()
             ox++;
             oy++;
             oz++;
-            closeChunks[(oy * 3 * oz) * 3 + ox] = other;
+            closeChunks[(3 * oz) * 3 + ox] = other;
         }
-            
+
         Mesh* mesh = renderer.render(chunk, (const Chunk**)closeChunks);
         meshes[i] = mesh;
     }

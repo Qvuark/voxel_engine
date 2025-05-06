@@ -15,18 +15,12 @@ struct Voxel;
 class Chunk
 {
 public:
-	static float NOISE_FREQUENCY;
-	static float NOISE_AMPLITUDE;
-	static int SURFACE_SCALE;
-	static int STONE_LAYER_HEIGHT;
 
 	int x, y, z;
 	Voxel* voxels;
-	Chunk(int x, int y, int z);
+
+	Chunk(int xpos, int ypos, int zpos);
 	~Chunk();
-	int calculateHeight(int x, int z) const;
-	uint8_t determineVoxelId(int x, int y, int z) const;
-	int getVoxelIndex(int x, int y, int z);
 };
 
 #endif 

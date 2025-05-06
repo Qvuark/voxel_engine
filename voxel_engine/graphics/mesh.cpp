@@ -1,20 +1,16 @@
 #include "mesh.h"
 #include <GL/glew.h>
 
-Mesh::Mesh(const std::vector<float>& buffer, size_t vertices, const std::vector<int>& attributes) : vertices(vertices)
+Mesh::Mesh(const float* buffer, size_t vertices, const std::vector<int>& attributes) : vertices(vertices)
 {
 	if (attributes.empty())
 	{
 		std::cerr << "Attributes array cannot be empty" << std::endl;
 	}
-	vertices = 0;
+	int vertex_size = 0;
 	for (int attr : attributes)
 	{
-		vertices += attr;
-	}
-	if (buffer.size() % vertices != 0)
-	{
-		std::cerr << "Buffer size is wrong" << std::endl;
+		vertex_size += attr;
 	}
 	//atributes
 	glGenVertexArrays(1, &VAO);
@@ -22,18 +18,18 @@ Mesh::Mesh(const std::vector<float>& buffer, size_t vertices, const std::vector<
 
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(float), buffer.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices * sizeof(float) * vertex_size, buffer, GL_STATIC_DRAW);
 
 	int offset = 0;
-
 	for (size_t i = 0; i < attributes.size(); i++)
 	{
 		int components = attributes[i];
-		glVertexAttribPointer(i, components, GL_FLOAT, GL_FALSE, vertices * sizeof(float), (GLvoid*)(offset * sizeof(float)));
+		glVertexAttribPointer(i, components, GL_FLOAT, GL_FALSE, vertex_size * sizeof(float), (GLvoid*)(offset * sizeof(float)));
 		glEnableVertexAttribArray(i);
 		offset += components;
 	}
 	glBindVertexArray(0);
+
 }
 Mesh::~Mesh()
 {
@@ -43,6 +39,6 @@ Mesh::~Mesh()
 void Mesh::drawPrimitive(unsigned int primitive)
 {
 	glBindVertexArray(VAO);
-	glDrawArrays(GL_TRIANGLES, 0, vertices);
+	glDrawArrays(primitive, 0, vertices);
 	glBindVertexArray(0);
 }

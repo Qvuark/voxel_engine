@@ -12,6 +12,7 @@ public:
 	unsigned int width, height, depth;
 	
 	Chunks(int w, int h, int d);
+	Voxel* getVoxel(int x, int y, int z);
 	~Chunks();
 };
 

@@ -10,7 +10,7 @@
 
 
 
-struct Voxel;
+class Voxel;
 
 class Chunk
 {

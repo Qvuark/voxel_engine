@@ -21,6 +21,7 @@ public:
 
 	Chunk(int xpos, int ypos, int zpos);
 	int noiseGenerator(int realX, int realY, int realZ);
+	uint8_t determineVoxelId(int realX, int realY, int realZ);
 	~Chunk();
 };
 

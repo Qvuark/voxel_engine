@@ -17,6 +17,7 @@ class Chunk
 public:
 
 	int x, y, z;
+	bool isModified = true;
 	Voxel* voxels;
 
 	Chunk(int xpos, int ypos, int zpos);

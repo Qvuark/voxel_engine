@@ -13,6 +13,7 @@ public:
 	
 	Chunks(int w, int h, int d);
 	Voxel* getVoxel(int x, int y, int z);
+	Chunk* getChunk(int x, int y, int z);
 	~Chunks();
 };
 

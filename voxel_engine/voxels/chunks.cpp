@@ -57,3 +57,32 @@ Chunk* Chunks::getChunk(int x, int y, int z)
 		return nullptr;
 	return chunks[(y * depth + z) * width + x];
 }
+void Chunks::set(int x, int y, int z, int id) 
+{
+	auto calculateChunkIndex = [](int coord, int chunkSize)
+	{
+		return (coord < 0) ? (coord - (chunkSize - 1)) / chunkSize : coord / chunkSize;
+	};
+	int cx = calculateChunkIndex(x, CHUNK_WIDTH);
+	int cy = calculateChunkIndex(y, CHUNK_HEIGHT);
+	int cz = calculateChunkIndex(z, CHUNK_DEPTH);;
+	
+	if (cx < 0 || cy < 0 || cz < 0 || cx >= width || cy >= height || cz >= depth)
+		return;
+	Chunk* chunk = chunks[(cy * depth + cz) * width + cx];
+
+	int lx = (x % CHUNK_WIDTH + CHUNK_WIDTH) % CHUNK_WIDTH;
+	int ly = (y % CHUNK_HEIGHT + CHUNK_HEIGHT) % CHUNK_HEIGHT;
+	int lz = (z % CHUNK_DEPTH + CHUNK_DEPTH) % CHUNK_DEPTH;
+
+	chunk->voxels[(ly * CHUNK_DEPTH + lz) * CHUNK_WIDTH + lx].id = id;
+	chunk->isModified = true;
+
+	if (lx == 0 && (chunk = getChunk(cx - 1, cy, cz))) chunk->isModified = true;
+	if (ly == 0 && (chunk = getChunk(cx, cy - 1, cz))) chunk->isModified = true;
+	if (lz == 0 && (chunk = getChunk(cx, cy, cz - 1))) chunk->isModified = true;
+
+	if (lx == CHUNK_WIDTH - 1 && (chunk = getChunk(cx + 1, cy, cz))) chunk->isModified = true;
+	if (ly == CHUNK_HEIGHT - 1 && (chunk = getChunk(cx, cy + 1, cz))) chunk->isModified = true;
+	if (lz == CHUNK_DEPTH - 1 && (chunk = getChunk(cx, cy, cz + 1))) chunk->isModified = true;
+}

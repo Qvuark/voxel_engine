@@ -20,6 +20,7 @@ public:
 	Voxel* voxels;
 
 	Chunk(int xpos, int ypos, int zpos);
+	int noiseGenerator(int realX, int realY, int realZ);
 	~Chunk();
 };
 

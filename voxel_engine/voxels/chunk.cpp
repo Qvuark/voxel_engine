@@ -15,7 +15,7 @@ Chunk::Chunk(int xpos, int ypos, int zpos) : x(xpos), y(ypos), z(zpos)
 				int realY = y + this->y * CHUNK_HEIGHT;
 				int realZ = z + this->z * CHUNK_DEPTH;
 
-				int id = realY <= (sin(realX * 0.1f) * 0.5f + 0.5f) * 10;
+				int id = realY <= noiseGenerator(realX, realY, realZ);
 				if (realY <= 2)
 					id = 2;
 				voxels[(y * CHUNK_DEPTH + z) * CHUNK_WIDTH + x].id = id;
@@ -24,6 +24,10 @@ Chunk::Chunk(int xpos, int ypos, int zpos) : x(xpos), y(ypos), z(zpos)
 	}
 }
 
+int Chunk::noiseGenerator(int realX, int realY, int realZ)
+{
+	return (sin(realX * 0.4f) * 0.9f + 0.6f) * 10;
+}
 Chunk::~Chunk() {
 	delete[] voxels;
 }

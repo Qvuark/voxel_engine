@@ -54,18 +54,20 @@ int main()
         Window::terminate();
         return 1;
     }
-    Chunks* chunks = new Chunks(4, 1, 4);
+    Chunks* chunks = new Chunks(8, 1, 8);
     Mesh** meshes = new Mesh * [chunks->volume];
     
     VoxelRenderer renderer(1024 * 1024);
-
     Chunk* closeChunks[27];
-    for (size_t i = 0; i < chunks->volume; i++)
+
+    for (size_t i = 0; i < chunks->volume; i++) 
     {
         Chunk* chunk = chunks->chunks[i];
-        for (int i = 0; i < 27; i++)
-            closeChunks[i] = nullptr;
-        for (size_t j = 0; j < chunks->volume; j++)
+        for (int k = 0; k < 27; k++) 
+        {
+            closeChunks[k] = nullptr;
+        }
+        for (size_t j = 0; j < chunks->volume; j++) 
         {
             Chunk* other = chunks->chunks[j];
 
@@ -73,12 +75,22 @@ int main()
             int oy = other->y - chunk->y;
             int oz = other->z - chunk->z;
 
-            if (abs(ox) > 1 || abs(oy) > 1 || abs(oz) > 1)
+            if (abs(ox) > 1 || abs(oy) > 1 || abs(oz) > 1) 
+            {
                 continue;
+            }
+
             ox++;
             oy++;
             oz++;
-            closeChunks[(3 * oz) * 3 + ox] = other;
+
+            if (ox < 0 || ox > 2 || oy < 0 || oy > 2 || oz < 0 || oz > 2) 
+            {
+                continue;
+            }
+
+            int index = oz * 9 + oy * 3 + ox;
+            closeChunks[index] = other;
         }
 
         Mesh* mesh = renderer.render(chunk, (const Chunk**)closeChunks);
@@ -104,7 +116,7 @@ int main()
     float speed = 25;
     while (!Window::isShouldBeClosed())
     {
-        Events::pullEvents();
+        
 
 
         float currentTime = glfwGetTime();
@@ -162,6 +174,7 @@ int main()
         }
 
         Window::swapBuffers();
+        Events::pullEvents();
     }
     delete shader;
     delete texture;

@@ -12,7 +12,7 @@
 #define GET_CHUNK(X,Y,Z) (chunks[((CDIV(Y, CHUNK_HEIGHT)+1) * 3 + CDIV(Z, CHUNK_DEPTH) + 1) * 3 + CDIV(X, CHUNK_WIDTH) + 1])
 
 #define VOXEL(X,Y,Z) (GET_CHUNK(X,Y,Z)->voxels[(LOCAL(Y, CHUNK_HEIGHT) * CHUNK_DEPTH + LOCAL(Z, CHUNK_DEPTH)) * CHUNK_WIDTH + LOCAL(X, CHUNK_WIDTH)])
-#define IS_BLOCKED(X,Y,Z) ((!IS_CHUNK(X, Y, Z)) || VOXEL(X, Y, Z).id)
+#define IS_BLOCKED(X,Y,Z) (!(IS_CHUNK(X, Y, Z)) || VOXEL(X, Y, Z).id)
 
 #define VERTEX(INDEX,X,Y,Z,U,V,L) buffer[INDEX+0] = (X);\
 								  buffer[INDEX+1] = (Y);\

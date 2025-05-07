@@ -57,7 +57,7 @@ Chunk* Chunks::getChunk(int x, int y, int z)
 		return nullptr;
 	return chunks[(y * depth + z) * width + x];
 }
-void Chunks::set(int x, int y, int z, int id) 
+void Chunks::setVoxel(int x, int y, int z, int id) 
 {
 	auto calculateChunkIndex = [](int coord, int chunkSize)
 	{
@@ -78,11 +78,147 @@ void Chunks::set(int x, int y, int z, int id)
 	chunk->voxels[(ly * CHUNK_DEPTH + lz) * CHUNK_WIDTH + lx].id = id;
 	chunk->isModified = true;
 
-	if (lx == 0 && (chunk = getChunk(cx - 1, cy, cz))) chunk->isModified = true;
-	if (ly == 0 && (chunk = getChunk(cx, cy - 1, cz))) chunk->isModified = true;
-	if (lz == 0 && (chunk = getChunk(cx, cy, cz - 1))) chunk->isModified = true;
+	if (lx == 0) 
+	{
+		if (Chunk* neighbor = getChunk(cx - 1, cy, cz)) 
+		{
+			neighbor->isModified = true;
+		}
+	}
+	if (ly == 0) 
+	{
+		if (Chunk* neighbor = getChunk(cx, cy - 1, cz)) 
+		{
+			neighbor->isModified = true;
+		}
+	}
+	if (lz == 0) 
+	{
+		if (Chunk* neighbor = getChunk(cx, cy, cz - 1)) 
+		{
+			neighbor->isModified = true;
+		}
+	}
+	if (lx == CHUNK_WIDTH - 1) 
+	{
+		if (Chunk* neighbor = getChunk(cx + 1, cy, cz)) 
+		{
+			neighbor->isModified = true;
+		}
+	}
+	if (ly == CHUNK_HEIGHT - 1) 
+	{
+		if (Chunk* neighbor = getChunk(cx, cy + 1, cz)) 
+		{
+			neighbor->isModified = true;
+		}
+	}
+	if (lz == CHUNK_DEPTH - 1) 
+	{
+		if (Chunk* neighbor = getChunk(cx, cy, cz + 1)) 
+		{
+			neighbor->isModified = true;
+		}
+	}
+}
+Voxel* Chunks::pointerRay(glm::vec3 a, glm::vec3 dir, float maxDist, glm::vec3& end, glm::vec3& norm, glm::vec3& iend)
+{
+	if (glm::length(dir) != 0.0f) 
+	{
+		dir = glm::normalize(dir);
+	}
 
-	if (lx == CHUNK_WIDTH - 1 && (chunk = getChunk(cx + 1, cy, cz))) chunk->isModified = true;
-	if (ly == CHUNK_HEIGHT - 1 && (chunk = getChunk(cx, cy + 1, cz))) chunk->isModified = true;
-	if (lz == CHUNK_DEPTH - 1 && (chunk = getChunk(cx, cy, cz + 1))) chunk->isModified = true;
+    float px = a.x;
+    float py = a.y;
+    float pz = a.z;
+
+    float dx = dir.x;
+    float dy = dir.y;
+    float dz = dir.z;
+
+    float t = 0.0f;
+
+	const float epsilon = 0.0001f;
+
+	int ix = static_cast<int>(floor(px + epsilon * (dx > 0 ? 1 : -1)));
+	int iy = static_cast<int>(floor(py + epsilon * (dy > 0 ? 1 : -1)));
+	int iz = static_cast<int>(floor(pz + epsilon * (dz > 0 ? 1 : -1)));
+
+    float stepx = (dx > 0.0f) ? 1.0f : -1.0f;
+    float stepy = (dy > 0.0f) ? 1.0f : -1.0f;
+    float stepz = (dz > 0.0f) ? 1.0f : -1.0f;
+
+    float infinity = std::numeric_limits<float>::infinity();
+
+    float txDelta = (dx == 0.0f) ? infinity : abs(1.0f / dx);
+    float tyDelta = (dy == 0.0f) ? infinity : abs(1.0f / dy);
+    float tzDelta = (dz == 0.0f) ? infinity : abs(1.0f / dz);
+
+    float xdist = (stepx > 0) ? (ix + 1 - px) : (px - ix);
+    float ydist = (stepy > 0) ? (iy + 1 - py) : (py - iy);
+    float zdist = (stepz > 0) ? (iz + 1 - pz) : (pz - iz);
+
+    float txMax = (txDelta < infinity) ? txDelta * xdist : infinity;
+    float tyMax = (tyDelta < infinity) ? tyDelta * ydist : infinity;
+    float tzMax = (tzDelta < infinity) ? tzDelta * zdist : infinity;
+
+    int steppedIndex = -1;
+
+    while (t <= maxDist)
+    {
+		Voxel* voxel = getVoxel(ix, iy, iz);
+
+		if (voxel == nullptr || voxel->id)
+        {
+			end.x = px + t * dx;
+            end.y = py + t * dy;
+            end.z = pz + t * dz;
+
+            iend.x = ix;
+            iend.y = iy;
+            iend.z = iz;
+
+			norm.x = norm.y = norm.z = 0.0f;
+
+            if (steppedIndex == 0) norm.x = -stepx;
+            if (steppedIndex == 1) norm.y = -stepy;
+            if (steppedIndex == 2) norm.z = -stepz;
+
+            return voxel;
+        }
+
+		if (txMax < tyMax && txMax < tzMax) 
+		{
+			ix += stepx;
+			t = txMax;
+			txMax += txDelta;
+			steppedIndex = 0;
+		}
+		else if (tyMax < tzMax) 
+		{
+			iy += stepy;
+			t = tyMax;
+			tyMax += tyDelta;
+			steppedIndex = 1;
+		}
+		else 
+		{
+			iz += stepz;
+			t = tzMax;
+			tzMax += tzDelta;
+			steppedIndex = 2;
+		}
+    }
+
+    iend.x = ix;
+    iend.y = iy;
+    iend.z = iz;
+
+    end.x = px + t * dx;
+    end.y = py + t * dy;
+    end.z = pz + t * dz;
+
+    norm.x = norm.y = norm.z = 0.0f;
+
+    return nullptr;
 }

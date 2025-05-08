@@ -7,7 +7,7 @@
 class Mesh
 {
 public:
-	Mesh(const float* buffer, size_t vertices, const std::vector<int>& attributes);
+	Mesh(const std::vector<float>& buffer, size_t vertices, const std::vector<int>& attributes);
 	~Mesh();
 	void drawPrimitive(unsigned int graphPrimitive);
 

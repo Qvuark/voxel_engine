@@ -11,7 +11,7 @@ class Chunk;
 class VoxelRenderer
 {
 public:
-	float* buffer;
+	std::vector<float> buffer;
 	size_t capacity;
 	VoxelRenderer(size_t capacity);
 	~VoxelRenderer();

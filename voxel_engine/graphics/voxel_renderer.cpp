@@ -22,17 +22,14 @@
 								  buffer[INDEX+5] = (L);\
 								  INDEX += VERTEX_SIZE;
 
-std::vector<int> attributes = {3,2,1,0};
+static std::vector<int> attributes = { 3,2,1,0 };
 
 VoxelRenderer::VoxelRenderer(size_t capacity) : capacity(capacity) 
 {
-	buffer = new float[capacity * VERTEX_SIZE * 6];
+	buffer.resize(capacity * VERTEX_SIZE * 6);
 }
 
-VoxelRenderer::~VoxelRenderer() 
-{
-	delete[] buffer;
-}	
+VoxelRenderer::~VoxelRenderer() {}	
 
 Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks) 
 {

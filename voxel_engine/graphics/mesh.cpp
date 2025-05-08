@@ -1,7 +1,7 @@
 #include "mesh.h"
 #include <GL/glew.h>
 
-Mesh::Mesh(const float* buffer, size_t vertices, const std::vector<int>& attributes) : vertices(vertices)
+Mesh::Mesh(const std::vector<float> &buffer, size_t vertices, const std::vector<int>& attributes) : vertices(vertices)
 {
 	if (attributes.empty())
 	{
@@ -18,7 +18,7 @@ Mesh::Mesh(const float* buffer, size_t vertices, const std::vector<int>& attribu
 
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, vertices * sizeof(float) * vertex_size, buffer, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices * sizeof(float) * vertex_size, buffer.data(), GL_STATIC_DRAW);
 
 	int offset = 0;
 	for (size_t i = 0; i < attributes.size(); i++)

@@ -21,13 +21,13 @@
 
 std::vector<float> vertices =
 {
-    -0.01f,-0.01f,
-     0.01f, 0.01f,
+    0.0f, -0.01f,
+    0.0f,  0.01f,
 
-    -0.01f, 0.01f,
-     0.01f,-0.01f,
+    -0.01f, 0.0f,
+     0.01f, 0.0f
 };
-
+std::vector<int> attributes = {2,0};
 int main()
 {
     int currentWidth = Window::width;
@@ -106,7 +106,7 @@ int main()
     glEnable(GL_DEPTH_TEST);
     //glEnable(GL_LIGHTING);
     glEnable(GL_CULL_FACE);
-
+    Mesh* crosshair = new Mesh(vertices, 4, attributes);
     Camera* camera = new Camera(vec3(5, 5, 20), radians(70.0f));
 
     float lastTime = glfwGetTime();
@@ -176,11 +176,15 @@ int main()
             voxelShader->uniformMatrix("model", model);
             mesh->drawPrimitive(GL_TRIANGLES);
         }
+        crosshairShader->use();
+        crosshair->drawPrimitive(GL_LINES);
 
         Window::swapBuffers();
         Events::pullEvents();
     }
     delete voxelShader;
+    delete crosshairShader;
+    delete crosshair;
     delete texture;
     delete chunks;
 

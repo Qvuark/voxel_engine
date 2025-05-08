@@ -21,14 +21,11 @@
 
 std::vector<float> vertices =
 {
-    //x   y    z     u      v
-   -1.0f,-1.0f, 0.0f, 0.0f, 0.0f,
-    1.0f,-1.0f, 0.0f, 1.0f, 0.0f,
-   -1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+    -0.01f,-0.01f,
+     0.01f, 0.01f,
 
-    1.0f,-1.0f, 0.0f, 1.0f, 0.0f,
-    1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-   -1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+    -0.01f, 0.01f,
+     0.01f,-0.01f,
 };
 
 int main()
@@ -39,10 +36,17 @@ int main()
     Window::initialize(currentWidth, currentHeight, "window");
     Events::initialize();
 
-    Shader* shader = loadShader("D:/DEV/c++/voxel_engine/res/main.vert", "D:/DEV/c++/voxel_engine/res/main.frag");
-    if (shader == nullptr)
+    Shader* voxelShader = loadShader("D:/DEV/c++/voxel_engine/res/voxel.vert", "D:/DEV/c++/voxel_engine/res/voxel.frag");
+    if (voxelShader == nullptr)
     {
-        std::cerr << "couldnt load the shader" << std::endl;
+        std::cerr << "couldnt load the voxel shader" << std::endl;
+        Window::terminate();
+        return 1;
+    }
+    Shader* crosshairShader = loadShader("D:/DEV/c++/voxel_engine/res/crosshair.vert", "D:/DEV/c++/voxel_engine/res/crosshair.frag");
+    if (crosshairShader == nullptr)
+    {
+        std::cerr << "couldnt load the crosshair shader" << std::endl;
         Window::terminate();
         return 1;
     }
@@ -159,8 +163,8 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         //draw vao
-        shader->use();
-        shader->uniformMatrix("projview", camera->getPerspective() * camera->getView());
+        voxelShader->use();
+        voxelShader->uniformMatrix("projview", camera->getPerspective() * camera->getView());
         texture->bind();
 
         mat4 model;
@@ -169,16 +173,16 @@ int main()
             Chunk* chunk = chunks->chunks[i];
             Mesh* mesh = meshes[i];
             mat4 model = glm::translate(mat4(1.0f), vec3(chunk->x * CHUNK_WIDTH, chunk->y * CHUNK_HEIGHT, chunk->z * CHUNK_DEPTH));
-            shader->uniformMatrix("model", model);
+            voxelShader->uniformMatrix("model", model);
             mesh->drawPrimitive(GL_TRIANGLES);
         }
 
         Window::swapBuffers();
         Events::pullEvents();
     }
-    delete shader;
+    delete voxelShader;
     delete texture;
-
+    delete chunks;
 
     Window::terminate();
     return 0;

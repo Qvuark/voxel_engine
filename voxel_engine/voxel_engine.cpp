@@ -59,54 +59,19 @@ int main()
         return 1;
     }
     Chunks* chunks = new Chunks(8, 1, 8);
-    Mesh** meshes = new Mesh * [chunks->volume];
-    
+    Mesh** meshes = new Mesh*[chunks->volume];
+    for (size_t i = 0; i < chunks->volume; i++)
+        meshes[i] = nullptr;
+
     VoxelRenderer renderer(1024 * 1024);
-    Chunk* closeChunks[27];
-
-    for (size_t i = 0; i < chunks->volume; i++) 
-    {
-        Chunk* chunk = chunks->chunks[i];
-        for (int k = 0; k < 27; k++) 
-        {
-            closeChunks[k] = nullptr;
-        }
-        for (size_t j = 0; j < chunks->volume; j++) 
-        {
-            Chunk* other = chunks->chunks[j];
-
-            int ox = other->x - chunk->x;
-            int oy = other->y - chunk->y;
-            int oz = other->z - chunk->z;
-
-            if (abs(ox) > 1 || abs(oy) > 1 || abs(oz) > 1) 
-            {
-                continue;
-            }
-
-            ox++;
-            oy++;
-            oz++;
-
-            if (ox < 0 || ox > 2 || oy < 0 || oy > 2 || oz < 0 || oz > 2) 
-            {
-                continue;
-            }
-
-            int index = oz * 9 + oy * 3 + ox;
-            closeChunks[index] = other;
-        }
-
-        Mesh* mesh = renderer.render(chunk, (const Chunk**)closeChunks);
-        meshes[i] = mesh;
-    }
-
+    
 
     glClearColor(0.6f, 0.62f, 0.65f, 1);
     glEnable(GL_DEPTH_TEST);
     //glEnable(GL_LIGHTING);
     glEnable(GL_CULL_FACE);
     Mesh* crosshair = new Mesh(vertices, 4, attributes);
+
     Camera* camera = new Camera(vec3(5, 5, 20), radians(70.0f));
 
     float lastTime = glfwGetTime();
@@ -120,9 +85,6 @@ int main()
     float speed = 25;
     while (!Window::isShouldBeClosed())
     {
-        
-
-
         float currentTime = glfwGetTime();
         delta = currentTime - lastTime;
         lastTime = currentTime;
@@ -163,6 +125,70 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         //draw vao
+        
+        {
+            vec3 end;
+            vec3 norm;
+            vec3 iend;
+            Voxel* vox = chunks->pointerRay(camera->pos, camera->front, 10.0f, end, norm, iend);			
+            if (vox != nullptr) 
+            {
+                if (Events::jtClicked(GLFW_MOUSE_BUTTON_1)) 
+                {
+                    chunks->setVoxel((int)iend.x, (int)iend.y, (int)iend.z, 0);
+                }
+                if (Events::jtClicked(GLFW_MOUSE_BUTTON_2)) 
+                {
+                    chunks->setVoxel((int)(iend.x) + (int)(norm.x), (int)(iend.y) + (int)(norm.y), (int)(iend.z) + (int)(norm.z), 2);
+                }
+            }
+        }
+        Chunk* closeChunks[27];
+
+        for (size_t i = 0; i < chunks->volume; i++)
+        {
+            Chunk* chunk = chunks->chunks[i];
+            if (!chunk->isModified)
+                continue;
+            chunk->isModified = false;
+
+            if (meshes[i] != nullptr)
+                delete meshes[i];
+
+            for (int k = 0; k < 27; k++)
+            {
+                closeChunks[k] = nullptr;
+            }
+            for (size_t j = 0; j < chunks->volume; j++)
+            {
+                Chunk* other = chunks->chunks[j];
+
+                int ox = other->x - chunk->x;
+                int oy = other->y - chunk->y;
+                int oz = other->z - chunk->z;
+
+                if (abs(ox) > 1 || abs(oy) > 1 || abs(oz) > 1)
+                {
+                    continue;
+                }
+
+                ox++;
+                oy++;
+                oz++;
+
+                if (ox < 0 || ox > 2 || oy < 0 || oy > 2 || oz < 0 || oz > 2)
+                {
+                    continue;
+                }
+
+                int index = oz * 9 + oy * 3 + ox;
+                closeChunks[index] = other;
+            }
+
+            Mesh* mesh = renderer.render(chunk, (const Chunk**)closeChunks);
+            meshes[i] = mesh;
+        }
+
         voxelShader->use();
         voxelShader->uniformMatrix("projview", camera->getPerspective() * camera->getView());
         texture->bind();
@@ -172,7 +198,7 @@ int main()
         {
             Chunk* chunk = chunks->chunks[i];
             Mesh* mesh = meshes[i];
-            mat4 model = glm::translate(mat4(1.0f), vec3(chunk->x * CHUNK_WIDTH, chunk->y * CHUNK_HEIGHT, chunk->z * CHUNK_DEPTH));
+            mat4 model = glm::translate(mat4(1.0f), vec3(chunk->x * CHUNK_WIDTH+0.5f, chunk->y * CHUNK_HEIGHT + 0.5f, chunk->z * CHUNK_DEPTH + 0.5f));
             voxelShader->uniformMatrix("model", model);
             mesh->drawPrimitive(GL_TRIANGLES);
         }

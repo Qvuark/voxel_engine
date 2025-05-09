@@ -31,9 +31,8 @@ Chunks::~Chunks()
 
 Voxel* Chunks::getVoxel(int x, int y, int z)
 {
-	auto calculateChunkIndex = [](int coord, int chunkSize) 
-	{
-			return (coord < 0) ? (coord - (chunkSize - 1)) / chunkSize : coord / chunkSize;
+	auto calculateChunkIndex = [](int coord, int chunkSize) {
+		return (coord < 0) ? (coord - (chunkSize - 1)) / chunkSize : coord / chunkSize;
 	};
 	int cx = calculateChunkIndex(x, CHUNK_WIDTH);
 	int cy = calculateChunkIndex(y, CHUNK_HEIGHT);
@@ -59,10 +58,9 @@ Chunk* Chunks::getChunk(int x, int y, int z)
 }
 void Chunks::setVoxel(int x, int y, int z, int id)
 {
-	auto calculateChunkIndex = [](int coord, int chunkSize)
-		{
+	auto calculateChunkIndex = [](int coord, int chunkSize)	{
 			return (coord < 0) ? (coord - (chunkSize - 1)) / chunkSize : coord / chunkSize;
-		};
+	};
 	int cx = calculateChunkIndex(x, CHUNK_WIDTH);
 	int cy = calculateChunkIndex(y, CHUNK_HEIGHT);
 	int cz = calculateChunkIndex(z, CHUNK_DEPTH);;

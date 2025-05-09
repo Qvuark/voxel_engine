@@ -31,9 +31,11 @@ VoxelRenderer::VoxelRenderer(size_t capacity) : capacity(capacity)
 
 VoxelRenderer::~VoxelRenderer() {}	
 
-Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks) 
+Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks, bool ambientOcclusion)
 {
 	size_t index = 0;
+	float aoIntensity = 0.3f;
+
 	for (int y = 0; y < CHUNK_HEIGHT; y++) 
 	{
 		for (int z = 0; z < CHUNK_DEPTH; z++) 
@@ -43,19 +45,33 @@ Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks)
 				Voxel vox = chunk->voxels[(y * CHUNK_DEPTH + z) * CHUNK_WIDTH + x];
 				unsigned int id = vox.id;
 
-				if (!id) 
-				{
+				if (!id)
 					continue;
-				}
 
 				float l;
 				float uvsize = 1.0f / 16.0f;
 				float u = (id % 16) * uvsize;
 				float v = 1 - ((1 + id / 16) * uvsize);
 
+				float a, b, c, d, e, f, g, h;
+				a = b = c = d = e = f = g = h = 0.0f;
+
 				if (!IS_BLOCKED(x, y + 1, z)) 
 				{
 					l = 1.0f;
+					if (ambientOcclusion) 
+					{
+						a = IS_BLOCKED(x + 1, y + 1, z) * aoIntensity;
+						b = IS_BLOCKED(x, y + 1, z + 1) * aoIntensity;
+						c = IS_BLOCKED(x - 1, y + 1, z) * aoIntensity;
+						d = IS_BLOCKED(x, y + 1, z - 1) * aoIntensity;
+
+						e = IS_BLOCKED(x - 1, y + 1, z - 1) * aoIntensity;
+						f = IS_BLOCKED(x - 1, y + 1, z + 1) * aoIntensity;
+						g = IS_BLOCKED(x + 1, y + 1, z + 1) * aoIntensity;
+						h = IS_BLOCKED(x + 1, y + 1, z - 1) * aoIntensity;
+					}
+
 					VERTEX(index, x - 0.5f, y + 0.5f, z - 0.5f, u + uvsize, v, l);
 					VERTEX(index, x - 0.5f, y + 0.5f, z + 0.5f, u + uvsize, v + uvsize, l);
 					VERTEX(index, x + 0.5f, y + 0.5f, z + 0.5f, u, v + uvsize, l);
@@ -67,6 +83,19 @@ Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks)
 				if (!IS_BLOCKED(x, y - 1, z)) 
 				{
 					l = 0.75f;
+
+					if (ambientOcclusion) 
+					{
+						a = IS_BLOCKED(x + 1, y - 1, z) * aoIntensity;
+						b = IS_BLOCKED(x, y - 1, z + 1) * aoIntensity;
+						c = IS_BLOCKED(x - 1, y - 1, z) * aoIntensity;
+						d = IS_BLOCKED(x, y - 1, z - 1) * aoIntensity;
+
+						e = IS_BLOCKED(x - 1, y - 1, z - 1) * aoIntensity;
+						f = IS_BLOCKED(x - 1, y - 1, z + 1) * aoIntensity;
+						g = IS_BLOCKED(x + 1, y - 1, z + 1) * aoIntensity;
+						h = IS_BLOCKED(x + 1, y - 1, z - 1) * aoIntensity;
+					}
 					VERTEX(index, x - 0.5f, y - 0.5f, z - 0.5f, u, v, l);
 					VERTEX(index, x + 0.5f, y - 0.5f, z + 0.5f, u + uvsize, v + uvsize, l);
 					VERTEX(index, x - 0.5f, y - 0.5f, z + 0.5f, u, v + uvsize, l);
@@ -79,6 +108,15 @@ Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks)
 				if (!IS_BLOCKED(x + 1, y, z)) 
 				{
 					l = 0.95f;
+					a = IS_BLOCKED(x + 1, y + 1, z) * aoIntensity;
+					b = IS_BLOCKED(x + 1, y, z + 1) * aoIntensity;
+					c = IS_BLOCKED(x + 1, y - 1, z) * aoIntensity;
+					d = IS_BLOCKED(x + 1, y, z - 1) * aoIntensity;
+
+					e = IS_BLOCKED(x + 1, y - 1, z - 1) * aoIntensity;
+					f = IS_BLOCKED(x + 1, y - 1, z + 1) * aoIntensity;
+					g = IS_BLOCKED(x + 1, y + 1, z + 1) * aoIntensity;
+					h = IS_BLOCKED(x + 1, y + 1, z - 1) * aoIntensity;
 					VERTEX(index, x + 0.5f, y - 0.5f, z - 0.5f, u + uvsize, v, l);
 					VERTEX(index, x + 0.5f, y + 0.5f, z - 0.5f, u + uvsize, v + uvsize, l);
 					VERTEX(index, x + 0.5f, y + 0.5f, z + 0.5f, u, v + uvsize, l);

@@ -129,17 +129,17 @@ int main()
         {
             vec3 end;
             vec3 norm;
-            vec3 iend;
-            Voxel* vox = chunks->pointerRay(camera->pos, camera->front, 10.0f, end, norm, iend);			
+            vec3 voxCoords;
+            Voxel* vox = chunks->pointerRay(camera->pos, camera->front, 15.0f, end, norm, voxCoords);			
             if (vox != nullptr) 
             {
                 if (Events::jtClicked(GLFW_MOUSE_BUTTON_1)) 
                 {
-                    chunks->setVoxel((int)iend.x, (int)iend.y, (int)iend.z, 0);
+                    chunks->setVoxel(static_cast<int>(voxCoords.x), static_cast<int>(voxCoords.y), static_cast<int>(voxCoords.z), 0);
                 }
                 if (Events::jtClicked(GLFW_MOUSE_BUTTON_2)) 
                 {
-                    chunks->setVoxel((int)(iend.x) + (int)(norm.x), (int)(iend.y) + (int)(norm.y), (int)(iend.z) + (int)(norm.z), 2);
+                    chunks->setVoxel(static_cast<int>(voxCoords.x) + static_cast<int>(norm.x), static_cast<int>(voxCoords.y) + static_cast<int>(norm.y), static_cast<int>(voxCoords.z) + static_cast<int>(norm.z), 2);
                 }
             }
         }
@@ -185,7 +185,7 @@ int main()
                 closeChunks[index] = other;
             }
 
-            Mesh* mesh = renderer.render(chunk, (const Chunk**)closeChunks);
+            Mesh* mesh = renderer.render(chunk, (const Chunk**)closeChunks, true);
             meshes[i] = mesh;
         }
 

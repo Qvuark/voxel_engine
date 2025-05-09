@@ -7,7 +7,6 @@ inline int getVoxelIndex(int lx, int ly, int lz)
     return (ly * CHUNK_DEPTH + lz) * CHUNK_WIDTH + lx;
 }
 
-
 Chunk::Chunk(int xpos, int ypos, int zpos) : x(xpos), y(ypos), z(zpos) 
 {
 	voxels = new Voxel[CHUNK_VOLUME];

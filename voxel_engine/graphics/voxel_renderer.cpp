@@ -12,7 +12,7 @@
 #define GET_CHUNK(X,Y,Z) (chunks[((CDIV(Y, CHUNK_HEIGHT)+1) * 3 + CDIV(Z, CHUNK_DEPTH) + 1) * 3 + CDIV(X, CHUNK_WIDTH) + 1])
 
 #define VOXEL(X,Y,Z) (GET_CHUNK(X,Y,Z)->voxels[(LOCAL(Y, CHUNK_HEIGHT) * CHUNK_DEPTH + LOCAL(Z, CHUNK_DEPTH)) * CHUNK_WIDTH + LOCAL(X, CHUNK_WIDTH)])
-#define IS_BLOCKED(X,Y,Z) (!(IS_CHUNK(X, Y, Z)) || VOXEL(X, Y, Z).id)
+#define IS_BLOCKED(X,Y,Z) ((!IS_CHUNK(X, Y, Z)) || VOXEL(X, Y, Z).id)
 
 #define VERTEX(INDEX,X,Y,Z,U,V,L) buffer[INDEX+0] = (X);\
 								  buffer[INDEX+1] = (Y);\
@@ -34,7 +34,7 @@ VoxelRenderer::~VoxelRenderer() {}
 Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks, bool ambientOcclusion)
 {
 	size_t index = 0;
-	float aoIntensity = 0.3f;
+	float aoIntensity = 0.20f;
 
 	for (int y = 0; y < CHUNK_HEIGHT; y++) 
 	{
@@ -50,9 +50,10 @@ Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks, bool ambientOccl
 
 				float l;
 				float uvsize = 1.0f / 16.0f;
-				float u = (id % 16) * uvsize;
-				float v = 1 - ((1 + id / 16) * uvsize);
-
+				float u1 = (id % 16) * uvsize;
+				float v1 = 1 - ((1 + id / 16) * uvsize);
+				float u2 = u1 + uvsize;
+				float v2 = v1 + uvsize;
 				float a, b, c, d, e, f, g, h;
 				a = b = c = d = e = f = g = h = 0.0f;
 
@@ -72,13 +73,13 @@ Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks, bool ambientOccl
 						h = IS_BLOCKED(x + 1, y + 1, z - 1) * aoIntensity;
 					}
 
-					VERTEX(index, x - 0.5f, y + 0.5f, z - 0.5f, u + uvsize, v, l);
-					VERTEX(index, x - 0.5f, y + 0.5f, z + 0.5f, u + uvsize, v + uvsize, l);
-					VERTEX(index, x + 0.5f, y + 0.5f, z + 0.5f, u, v + uvsize, l);
+					VERTEX(index, x - 0.5f, y + 0.5f, z - 0.5f, u2, v1, l * (1.0f - c - d - e));
+					VERTEX(index, x - 0.5f, y + 0.5f, z + 0.5f, u2, v2, l * (1.0f - c - d - f));
+					VERTEX(index, x + 0.5f, y + 0.5f, z + 0.5f, u1, v2, l * (1.0f - a - b - g));
 
-					VERTEX(index, x - 0.5f, y + 0.5f, z - 0.5f, u + uvsize, v, l);
-					VERTEX(index, x + 0.5f, y + 0.5f, z + 0.5f, u, v + uvsize, l);
-					VERTEX(index, x + 0.5f, y + 0.5f, z - 0.5f, u, v, l);
+					VERTEX(index, x - 0.5f, y + 0.5f, z - 0.5f, u2, v1, l * (1.0f - c - d - e));
+					VERTEX(index, x + 0.5f, y + 0.5f, z + 0.5f, u1, v2, l * (1.0f - a - b - g));
+					VERTEX(index, x + 0.5f, y + 0.5f, z - 0.5f, u1, v1, l * (1.0f - a - d - h));
 				}
 				if (!IS_BLOCKED(x, y - 1, z)) 
 				{
@@ -96,68 +97,107 @@ Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks, bool ambientOccl
 						g = IS_BLOCKED(x + 1, y - 1, z + 1) * aoIntensity;
 						h = IS_BLOCKED(x + 1, y - 1, z - 1) * aoIntensity;
 					}
-					VERTEX(index, x - 0.5f, y - 0.5f, z - 0.5f, u, v, l);
-					VERTEX(index, x + 0.5f, y - 0.5f, z + 0.5f, u + uvsize, v + uvsize, l);
-					VERTEX(index, x - 0.5f, y - 0.5f, z + 0.5f, u, v + uvsize, l);
+					VERTEX(index, x - 0.5f, y - 0.5f, z - 0.5f, u1, v1, l * (1.0f - c - d - e));
+					VERTEX(index, x + 0.5f, y - 0.5f, z + 0.5f, u2, v2, l * (1.0f - a - b - g));
+					VERTEX(index, x - 0.5f, y - 0.5f, z + 0.5f, u1, v2, l * (1.0f - c - b - f));
 
-					VERTEX(index, x - 0.5f, y - 0.5f, z - 0.5f, u, v, l);
-					VERTEX(index, x + 0.5f, y - 0.5f, z - 0.5f, u + uvsize, v, l);
-					VERTEX(index, x + 0.5f, y - 0.5f, z + 0.5f, u + uvsize, v + uvsize, l);
+					VERTEX(index, x - 0.5f, y - 0.5f, z - 0.5f, u1, v1, l * (1.0f - c - d - e));
+					VERTEX(index, x + 0.5f, y - 0.5f, z - 0.5f, u2, v1, l * (1.0f - a - d - h));
+					VERTEX(index, x + 0.5f, y - 0.5f, z + 0.5f, u2, v2, l * (1.0f - a - b - g));
 				}
 
 				if (!IS_BLOCKED(x + 1, y, z)) 
 				{
 					l = 0.95f;
-					a = IS_BLOCKED(x + 1, y + 1, z) * aoIntensity;
-					b = IS_BLOCKED(x + 1, y, z + 1) * aoIntensity;
-					c = IS_BLOCKED(x + 1, y - 1, z) * aoIntensity;
-					d = IS_BLOCKED(x + 1, y, z - 1) * aoIntensity;
+					if (ambientOcclusion)
+					{
+						a = IS_BLOCKED(x + 1, y + 1, z) * aoIntensity;
+						b = IS_BLOCKED(x + 1, y, z + 1) * aoIntensity;
+						c = IS_BLOCKED(x + 1, y - 1, z) * aoIntensity;
+						d = IS_BLOCKED(x + 1, y, z - 1) * aoIntensity;
 
-					e = IS_BLOCKED(x + 1, y - 1, z - 1) * aoIntensity;
-					f = IS_BLOCKED(x + 1, y - 1, z + 1) * aoIntensity;
-					g = IS_BLOCKED(x + 1, y + 1, z + 1) * aoIntensity;
-					h = IS_BLOCKED(x + 1, y + 1, z - 1) * aoIntensity;
-					VERTEX(index, x + 0.5f, y - 0.5f, z - 0.5f, u + uvsize, v, l);
-					VERTEX(index, x + 0.5f, y + 0.5f, z - 0.5f, u + uvsize, v + uvsize, l);
-					VERTEX(index, x + 0.5f, y + 0.5f, z + 0.5f, u, v + uvsize, l);
+						e = IS_BLOCKED(x + 1, y - 1, z - 1) * aoIntensity;
+						f = IS_BLOCKED(x + 1, y - 1, z + 1) * aoIntensity;
+						g = IS_BLOCKED(x + 1, y + 1, z + 1) * aoIntensity;
+						h = IS_BLOCKED(x + 1, y + 1, z - 1) * aoIntensity;
+					}
+					VERTEX(index, x + 0.5f, y - 0.5f, z - 0.5f, u2, v1, l*(1.0f-c-d-e));
+					VERTEX(index, x + 0.5f, y + 0.5f, z - 0.5f, u2, v2, l * (1.0f - d - a - h));
+					VERTEX(index, x + 0.5f, y + 0.5f, z + 0.5f, u1, v2, l * (1.0f - a - b - g));
 
-					VERTEX(index, x + 0.5f, y - 0.5f, z - 0.5f, u + uvsize, v, l);
-					VERTEX(index, x + 0.5f, y + 0.5f, z + 0.5f, u, v + uvsize, l);
-					VERTEX(index, x + 0.5f, y - 0.5f, z + 0.5f, u, v, l);
+					VERTEX(index, x + 0.5f, y - 0.5f, z - 0.5f, u2, v1, l * (1.0f - c - d - e));
+					VERTEX(index, x + 0.5f, y + 0.5f, z + 0.5f, u1, v2, l * (1.0f - a - b - g));
+					VERTEX(index, x + 0.5f, y - 0.5f, z + 0.5f, u1, v1, l * (1.0f - b - c - f));
 				}
 				if (!IS_BLOCKED(x - 1, y, z)) 
 				{
 					l = 0.85f;
-					VERTEX(index, x - 0.5f, y - 0.5f, z - 0.5f, u, v, l);
-					VERTEX(index, x - 0.5f, y + 0.5f, z + 0.5f, u + uvsize, v + uvsize, l);
-					VERTEX(index, x - 0.5f, y + 0.5f, z - 0.5f, u, v + uvsize, l);
+					if (ambientOcclusion) 
+					{
+						a = IS_BLOCKED(x - 1, y + 1, z) * aoIntensity;
+						b = IS_BLOCKED(x - 1, y, z + 1) * aoIntensity;
+						c = IS_BLOCKED(x - 1, y - 1, z) * aoIntensity;
+						d = IS_BLOCKED(x - 1, y, z - 1) * aoIntensity;
 
-					VERTEX(index, x - 0.5f, y - 0.5f, z - 0.5f, u, v, l);
-					VERTEX(index, x - 0.5f, y - 0.5f, z + 0.5f, u + uvsize, v, l);
-					VERTEX(index, x - 0.5f, y + 0.5f, z + 0.5f, u + uvsize, v + uvsize, l);
+						e = IS_BLOCKED(x - 1, y - 1, z - 1) * aoIntensity;
+						f = IS_BLOCKED(x - 1, y - 1, z + 1) * aoIntensity;
+						g = IS_BLOCKED(x - 1, y + 1, z + 1) * aoIntensity;
+						h = IS_BLOCKED(x - 1, y + 1, z - 1) * aoIntensity;
+					}
+					VERTEX(index, x - 0.5f, y - 0.5f, z - 0.5f, u1, v1, l * (1.0f - c - d - e));
+					VERTEX(index, x - 0.5f, y + 0.5f, z + 0.5f, u2, v2, l * (1.0f - a - b - g));
+					VERTEX(index, x - 0.5f, y + 0.5f, z - 0.5f, u1, v2, l * (1.0f - d - a - h));
+
+					VERTEX(index, x - 0.5f, y - 0.5f, z - 0.5f, u1, v1, l * (1.0f - c - d - e));
+					VERTEX(index, x - 0.5f, y - 0.5f, z + 0.5f, u2, v1, l * (1.0f - b - c - f));
+					VERTEX(index, x - 0.5f, y + 0.5f, z + 0.5f, u2, v2, l * (1.0f - a - b - g));
 				}
 
 				if (!IS_BLOCKED(x, y, z + 1)) 
 				{
 					l = 0.9f;
-					VERTEX(index, x - 0.5f, y - 0.5f, z + 0.5f, u, v, l);
-					VERTEX(index, x + 0.5f, y + 0.5f, z + 0.5f, u + uvsize, v + uvsize, l);
-					VERTEX(index, x - 0.5f, y + 0.5f, z + 0.5f, u, v + uvsize, l);
+					if (ambientOcclusion) 
+					{
+						a = IS_BLOCKED(x, y + 1, z + 1) * aoIntensity;
+						b = IS_BLOCKED(x + 1, y, z + 1) * aoIntensity;
+						c = IS_BLOCKED(x, y - 1, z + 1) * aoIntensity;
+						d = IS_BLOCKED(x - 1, y, z + 1) * aoIntensity;
 
-					VERTEX(index, x - 0.5f, y - 0.5f, z + 0.5f, u, v, l);
-					VERTEX(index, x + 0.5f, y - 0.5f, z + 0.5f, u + uvsize, v, l);
-					VERTEX(index, x + 0.5f, y + 0.5f, z + 0.5f, u + uvsize, v + uvsize, l);
+						e = IS_BLOCKED(x - 1, y - 1, z + 1) * aoIntensity;
+						f = IS_BLOCKED(x + 1, y - 1, z + 1) * aoIntensity;
+						g = IS_BLOCKED(x + 1, y + 1, z + 1) * aoIntensity;
+						h = IS_BLOCKED(x - 1, y + 1, z + 1) * aoIntensity;
+					}
+					VERTEX(index, x - 0.5f, y - 0.5f, z + 0.5f, u1, v1, l* (1.0f - c - d - e));
+					VERTEX(index, x + 0.5f, y + 0.5f, z + 0.5f, u2, v2, l* (1.0f - a - b - g));
+					VERTEX(index, x - 0.5f, y + 0.5f, z + 0.5f, u1, v2, l* (1.0f - a - d - h));
+
+					VERTEX(index, x - 0.5f, y - 0.5f, z + 0.5f, u1, v1, l* (1.0f - c - d - e));
+					VERTEX(index, x + 0.5f, y - 0.5f, z + 0.5f, u2, v1, l* (1.0f - b - c - f));
+					VERTEX(index, x + 0.5f, y + 0.5f, z + 0.5f, u2, v2, l* (1.0f - a - b - g));
 				}
 				if (!IS_BLOCKED(x, y, z - 1)) 
 				{
 					l = 0.8f;
-					VERTEX(index, x - 0.5f, y - 0.5f, z - 0.5f, u + uvsize, v, l);
-					VERTEX(index, x - 0.5f, y + 0.5f, z - 0.5f, u + uvsize, v + uvsize, l);
-					VERTEX(index, x + 0.5f, y + 0.5f, z - 0.5f, u, v + uvsize, l);
+					if (ambientOcclusion) 
+					{
+						a = IS_BLOCKED(x, y + 1, z - 1) * aoIntensity;
+						b = IS_BLOCKED(x + 1, y, z - 1) * aoIntensity;
+						c = IS_BLOCKED(x, y - 1, z - 1) * aoIntensity;
+						d = IS_BLOCKED(x - 1, y, z - 1) * aoIntensity;
 
-					VERTEX(index, x - 0.5f, y - 0.5f, z - 0.5f, u + uvsize, v, l);
-					VERTEX(index, x + 0.5f, y + 0.5f, z - 0.5f, u, v + uvsize, l);
-					VERTEX(index, x + 0.5f, y - 0.5f, z - 0.5f, u, v, l);
+						e = IS_BLOCKED(x - 1, y - 1, z - 1) * aoIntensity;
+						f = IS_BLOCKED(x + 1, y - 1, z - 1) * aoIntensity;
+						g = IS_BLOCKED(x + 1, y + 1, z - 1) * aoIntensity;
+						h = IS_BLOCKED(x - 1, y + 1, z - 1) * aoIntensity;
+					}
+					VERTEX(index, x - 0.5f, y - 0.5f, z - 0.5f, u2, v1, l* (1.0f - c - d - e));
+					VERTEX(index, x - 0.5f, y + 0.5f, z - 0.5f, u2, v2, l* (1.0f - a - d - h));
+					VERTEX(index, x + 0.5f, y + 0.5f, z - 0.5f, u1, v2, l* (1.0f - a - b - g));
+
+					VERTEX(index, x - 0.5f, y - 0.5f, z - 0.5f, u2, v1, l* (1.0f - c - d - e));
+					VERTEX(index, x + 0.5f, y + 0.5f, z - 0.5f, u1, v2, l* (1.0f - a - b - g));
+					VERTEX(index, x + 0.5f, y - 0.5f, z - 0.5f, u1, v1, l* (1.0f - b - c - f));
 				}
 			}
 		}

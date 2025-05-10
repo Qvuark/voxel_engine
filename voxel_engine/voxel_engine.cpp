@@ -181,7 +181,7 @@ int main()
                     continue;
                 }
 
-                int index = oz * 9 + oy * 3 + ox;
+                int index = (oy * 3 + oz) * 3 + ox;
                 closeChunks[index] = other;
             }
 

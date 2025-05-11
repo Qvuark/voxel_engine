@@ -58,7 +58,7 @@ int main()
         Window::terminate();
         return 1;
     }
-    Chunks* chunks = new Chunks(8, 1, 8);
+    Chunks* chunks = new Chunks(16, 8, 16);
     Mesh** meshes = new Mesh*[chunks->volume];
     for (size_t i = 0; i < chunks->volume; i++)
         meshes[i] = nullptr;
@@ -119,6 +119,7 @@ int main()
         static float pitch = 0.0f;
         pitch += pitchDelta;
         pitch = clamp(pitch, -89.0f, 89.0f);
+        
 
         camera->rotate(pitchDelta, yawDelta);
 
@@ -139,7 +140,15 @@ int main()
                 }
                 if (Events::jtClicked(GLFW_MOUSE_BUTTON_2)) 
                 {
-                    chunks->setVoxel(static_cast<int>(voxCoords.x) + static_cast<int>(norm.x), static_cast<int>(voxCoords.y) + static_cast<int>(norm.y), static_cast<int>(voxCoords.z) + static_cast<int>(norm.z), 2);
+                    chunks->setVoxel(static_cast<int>(voxCoords.x) + static_cast<int>(norm.x), static_cast<int>(voxCoords.y) + static_cast<int>(norm.y), static_cast<int>(voxCoords.z) + static_cast<int>(norm.z), 3);
+                }
+                if (Events::jtClicked(GLFW_MOUSE_BUTTON_3))
+                {
+                    chunks->setVoxel(static_cast<int>(voxCoords.x) + static_cast<int>(norm.x), static_cast<int>(voxCoords.y) + static_cast<int>(norm.y), static_cast<int>(voxCoords.z) + static_cast<int>(norm.z), 4);
+                }
+                if (Events::jtClicked(GLFW_MOUSE_BUTTON_4))
+                {
+                    chunks->setVoxel(static_cast<int>(voxCoords.x) + static_cast<int>(norm.x), static_cast<int>(voxCoords.y) + static_cast<int>(norm.y), static_cast<int>(voxCoords.z) + static_cast<int>(norm.z), 5);
                 }
             }
         }

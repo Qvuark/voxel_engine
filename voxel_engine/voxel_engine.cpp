@@ -30,6 +30,7 @@ std::vector<float> vertices =
 std::vector<int> attributes = {2,0};
 int main()
 {
+    srand(time(0));
     int currentWidth = Window::width;
     int currentHeight = Window::height;
 
@@ -58,7 +59,7 @@ int main()
         Window::terminate();
         return 1;
     }
-    Chunks* chunks = new Chunks(16, 8, 16);
+    Chunks* chunks = new Chunks(16, 2, 16);
     Mesh** meshes = new Mesh*[chunks->volume];
     for (size_t i = 0; i < chunks->volume; i++)
         meshes[i] = nullptr;
@@ -70,9 +71,10 @@ int main()
     glEnable(GL_DEPTH_TEST);
     //glEnable(GL_LIGHTING);
     glEnable(GL_CULL_FACE);
+
     Mesh* crosshair = new Mesh(vertices, 4, attributes);
 
-    Camera* camera = new Camera(vec3(5, 5, 20), radians(70.0f));
+    Camera* camera = new Camera(vec3(155, 55, 55), radians(70.0f));
 
     float lastTime = glfwGetTime();
     float delta = 0.0f;

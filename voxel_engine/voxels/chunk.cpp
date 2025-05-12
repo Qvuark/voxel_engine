@@ -17,9 +17,12 @@ Chunk::Chunk(int xpos, int ypos, int zpos) : x(xpos), y(ypos), z(zpos)
 {
 
     const float NOISE_SCALE = 0.05f;
-    const int WATER_LEVEL = 30;
+    const int WATER_LEVEL = 50;
     const int COAL_SPAWN_CHANCE = 25;
     const int TREE_SPACING = 10;
+    const float CAVE_NOISE_SCALE = 0.03f;
+    const float CAVE_THRESHOLD = 0.05f;
+    const int MAX_CAVE_HEIGHT = 55;
 
     voxels = new Voxel[CHUNK_VOLUME]{};
 
@@ -83,6 +86,39 @@ Chunk::Chunk(int xpos, int ypos, int zpos) : x(xpos), y(ypos), z(zpos)
             }
         }
     }
+    for (int ly = 0; ly < CHUNK_HEIGHT; ly++) 
+    {
+        for (int lz = 0; lz < CHUNK_DEPTH; lz++) 
+        {
+            for (int lx = 0; lx < CHUNK_WIDTH; lx++) 
+            {
+                int realY = ly + y * CHUNK_HEIGHT;
+
+                if (realY < MAX_CAVE_HEIGHT) 
+                {
+                    int realX = lx + x * CHUNK_WIDTH;
+                    int realZ = lz + z * CHUNK_DEPTH;
+
+                    float caveNoise = glm::perlin(glm::vec3(realX * CAVE_NOISE_SCALE,realY * CAVE_NOISE_SCALE * 0.005f, realZ * CAVE_NOISE_SCALE));
+
+                    float caveNoise2 = glm::perlin(glm::vec3(realX * CAVE_NOISE_SCALE * 4.0f,realY * CAVE_NOISE_SCALE*0.05f,realZ * CAVE_NOISE_SCALE * 4.0f))*0.5f;
+
+                    float combinedNoise = caveNoise * 0.7f + caveNoise2 * 0.3f;
+
+
+                    if (combinedNoise > CAVE_THRESHOLD) 
+                    {
+                        int idx = getVoxelIndex(lx, ly, lz);
+                        if (voxels[idx].id != 6 && voxels[idx].id != 5) 
+                        {
+                            voxels[idx].id = 0; 
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }
 void Chunk::generateTree(int x, int y, int z) 
 {

@@ -1,4 +1,4 @@
-#include "chunk.h"
+﻿#include "chunk.h"
 #include "voxels.h"
 #include <math.h>
 #include <glm/gtc/noise.hpp>
@@ -18,11 +18,20 @@ Chunk::Chunk(int xpos, int ypos, int zpos) : x(xpos), y(ypos), z(zpos)
 
     const float NOISE_SCALE = 0.05f;
     const int WATER_LEVEL = 50;
-    const int COAL_SPAWN_CHANCE = 25;
+    const int COAL_SPAWN_CHANCE = 104;
     const int TREE_SPACING = 10;
-    const float CAVE_NOISE_SCALE = 0.03f;
-    const float CAVE_THRESHOLD = 0.05f;
-    const int MAX_CAVE_HEIGHT = 55;
+
+    constexpr float CAVE_NOISE_SCALE = 0.03f;      
+    constexpr int   CAVE_MIN_Y = 5;                
+    constexpr int   CAVE_MAX_Y = 55;               
+    constexpr float CAVE_THRESHOLD = 0.15f;        
+    constexpr float VERTICAL_SQUASH = 0.08f;       
+    constexpr float HORIZONTAL_STRETCH = 1.9f;     
+    constexpr float CAVE_WARP_INTENSITY = 2.5f;
+    constexpr float SURFACE_ENTRY_CHANCE = 0.002f; 
+    constexpr int ENTRY_RADIUS = 6;                
+    constexpr int SHAFT_RADIUS = 3;                
+    constexpr int MIN_ENTRY_DEPTH = 8;             
 
     voxels = new Voxel[CHUNK_VOLUME]{};
 
@@ -86,33 +95,110 @@ Chunk::Chunk(int xpos, int ypos, int zpos) : x(xpos), y(ypos), z(zpos)
             }
         }
     }
-    for (int ly = 0; ly < CHUNK_HEIGHT; ly++) 
+    for (int ly = 0; ly < CHUNK_HEIGHT; ly++)
     {
-        for (int lz = 0; lz < CHUNK_DEPTH; lz++) 
+        int realY = ly + y * CHUNK_HEIGHT;
+        if (realY < CAVE_MIN_Y || realY + 5 > CAVE_MAX_Y) continue;
+
+        float t = float(realY - CAVE_MIN_Y) / float(CAVE_MAX_Y - CAVE_MIN_Y);
+        float mask = 1.0f - 4.0f * (t - 0.5f) * (t - 0.5f);
+
+        for (int lz = 0; lz < CHUNK_DEPTH; lz++)
         {
-            for (int lx = 0; lx < CHUNK_WIDTH; lx++) 
+            for (int lx = 0; lx < CHUNK_WIDTH; lx++)
             {
-                int realY = ly + y * CHUNK_HEIGHT;
+                int idx = getVoxelIndex(lx, ly, lz);
 
-                if (realY < MAX_CAVE_HEIGHT) 
+                if (voxels[idx].id == 5 || voxels[idx].id == 6 || voxels[idx].id == 9 || voxels[idx].id == 10) 
+                    continue;
+
+                int realX = lx + x * CHUNK_WIDTH;
+                int realZ = lz + z * CHUNK_DEPTH;
+
+                glm::vec3 warpPos = glm::vec3(realX * CAVE_NOISE_SCALE * 0.3f, realZ * CAVE_NOISE_SCALE * 0.3f,realY * VERTICAL_SQUASH * 0.1f);
+
+                glm::vec3 q = glm::vec3(glm::perlin(warpPos + glm::vec3(0.0f, 5.2f, 1.7f)),glm::perlin(warpPos + glm::vec3(3.5f, 2.8f, 8.1f)),glm::perlin(warpPos + glm::vec3(9.7f, 4.3f, 6.6f)));
+
+                glm::vec3 warped = warpPos + q * CAVE_WARP_INTENSITY;
+
+                float n1 = glm::perlin(glm::vec3(realX * CAVE_NOISE_SCALE * HORIZONTAL_STRETCH, realZ * CAVE_NOISE_SCALE * HORIZONTAL_STRETCH, realY * VERTICAL_SQUASH));
+
+                float n2 = glm::perlin(warped * 3.0f) * 0.4f;
+
+                float n3 = glm::perlin(glm::vec3(realX * 0.15f,realZ * 0.15f,realY * 0.05f)) * 0.2f;
+
+                float noise = (n1 * 0.7f + n2 * 0.2f + n3 * 0.1f) * mask;
+
+                if (noise > CAVE_THRESHOLD)
                 {
-                    int realX = lx + x * CHUNK_WIDTH;
-                    int realZ = lz + z * CHUNK_DEPTH;
+                    voxels[idx].id = 0;
 
-                    float caveNoise = glm::perlin(glm::vec3(realX * CAVE_NOISE_SCALE,realY * CAVE_NOISE_SCALE * 0.005f, realZ * CAVE_NOISE_SCALE));
+                    int surfaceHeight = WATER_LEVEL + 5; 
+                    int depth = surfaceHeight - realY;
 
-                    float caveNoise2 = glm::perlin(glm::vec3(realX * CAVE_NOISE_SCALE * 4.0f,realY * CAVE_NOISE_SCALE*0.05f,realZ * CAVE_NOISE_SCALE * 4.0f))*0.5f;
-
-                    float combinedNoise = caveNoise * 0.7f + caveNoise2 * 0.3f;
-
-
-                    if (combinedNoise > CAVE_THRESHOLD) 
+                    if (depth >= MIN_ENTRY_DEPTH &&realY >= CAVE_MAX_Y - 15 && mask > 0.7f && noise > CAVE_THRESHOLD * 1.5f && rand() % 1000 < SURFACE_ENTRY_CHANCE * 1000)
                     {
-                        int idx = getVoxelIndex(lx, ly, lz);
-                        if (voxels[idx].id != 6 && voxels[idx].id != 5) 
+                        glm::vec3 entryWarp = glm::vec3(realX * 0.1f, realZ * 0.1f,realY * 0.05f);
+
+                        float warpX = glm::perlin(entryWarp + glm::vec3(10.0f));
+                        float warpZ = glm::perlin(entryWarp + glm::vec3(20.0f));
+
+                        for (int dy = 0; dy <= depth; dy++)
                         {
-                            voxels[idx].id = 0; 
+                            int currentY = realY + dy;
+                            if (currentY > CAVE_MAX_Y) 
+                                break;
+
+                            float t = float(dy) / depth;
+                            int offsetX = lx + warpX * t * 4.0f;
+                            int offsetZ = lz + warpZ * t * 4.0f;
+
+                            for (int ox = -SHAFT_RADIUS; ox <= SHAFT_RADIUS; ox++)
+                            {
+                                for (int oz = -SHAFT_RADIUS; oz <= SHAFT_RADIUS; oz++)
+                                {
+                                    if (ox * ox + oz * oz > SHAFT_RADIUS * SHAFT_RADIUS) 
+                                        continue;
+
+                                    int wx = offsetX + ox;
+                                    int wz = offsetZ + oz;
+
+                                    if (wx < 0 || wx >= CHUNK_WIDTH || wz < 0 || wz >= CHUNK_DEPTH) 
+                                        continue;
+
+                                    int entryIdx = getVoxelIndex(wx, ly + dy, wz);
+
+                                    if (voxels[entryIdx].id == 5 || voxels[entryIdx].id == 6 || voxels[entryIdx].id == 9 || voxels[entryIdx].id == 10) 
+                                        continue;
+
+                                    if (dy > depth - 3)
+                                    {
+                                        if (ox * ox + oz * oz <= (ENTRY_RADIUS * ENTRY_RADIUS) * (1.0f - t))
+                                        {
+                                            if (voxels[entryIdx].id == 3)
+                                                voxels[entryIdx].id = 4;
+                                            else
+                                                voxels[entryIdx].id = 0;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        voxels[entryIdx].id = 0;
+                                    }
+                                }
+                            }
                         }
+                    }
+                }
+                if ((lx == 8 || lz == 8) && mask > 0.7f && rand() % 200 == 0)
+                {
+                    float dx = lx - 8, dz = lz - 8, dy = ly - (CAVE_MAX_Y - CAVE_MIN_Y) / 2;
+                    float dist = dx * dx + dz * dz + dy * dy;
+
+                    if (dist < 9.0f)
+                    {
+                        voxels[idx].id = 0;
+                       
                     }
                 }
             }

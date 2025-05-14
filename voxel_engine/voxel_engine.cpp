@@ -59,7 +59,7 @@ int main()
         Window::terminate();
         return 1;
     }
-    Chunks* chunks = new Chunks(12, 2, 12);
+    Chunks* chunks = new Chunks(16, 2, 16);
     Mesh** meshes = new Mesh*[chunks->volume];
     for (size_t i = 0; i < chunks->volume; i++)
         meshes[i] = nullptr;

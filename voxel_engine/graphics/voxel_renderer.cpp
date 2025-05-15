@@ -142,7 +142,8 @@ Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks, bool ambientOccl
                 {
                     l = 0.95f;
 
-                    if (ambientOcclusion) {
+                    if (ambientOcclusion) 
+                    {
                         a = is_blocked(x + 1, y + 1, z, chunks) * aoIntensity;
                         b = is_blocked(x + 1, y, z + 1, chunks) * aoIntensity;
                         c = is_blocked(x + 1, y - 1, z, chunks) * aoIntensity;
@@ -159,11 +160,13 @@ Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks, bool ambientOccl
                     index = add_vertex(buffer.data(), index, x + 0.5f, y + 0.5f, z + 0.5f, u1, v2, l * (1.0f - a - b - g));
                     index = add_vertex(buffer.data(), index, x + 0.5f, y - 0.5f, z + 0.5f, u1, v1, l * (1.0f - b - c - f));
                 }
-                if (!is_blocked(x - 1, y, z, chunks)) {
+                if (!is_blocked(x - 1, y, z, chunks)) 
+                {
                     l = 0.85f;
                     a = b = c = d = e = f = g = h = 0.0f;
 
-                    if (ambientOcclusion) {
+                    if (ambientOcclusion)
+                    {
                         a = is_blocked(x - 1, y + 1, z, chunks) * aoIntensity;
                         b = is_blocked(x - 1, y, z + 1, chunks) * aoIntensity;
                         c = is_blocked(x - 1, y - 1, z, chunks) * aoIntensity;
@@ -187,7 +190,8 @@ Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks, bool ambientOccl
                     l = 0.9f;
                     a = b = c = d = e = f = g = h = 0.0f;
 
-                    if (ambientOcclusion) {
+                    if (ambientOcclusion) 
+                    {
                         a = is_blocked(x, y + 1, z + 1, chunks) * aoIntensity;
                         b = is_blocked(x + 1, y, z + 1, chunks) * aoIntensity;
                         c = is_blocked(x, y - 1, z + 1, chunks) * aoIntensity;
@@ -210,7 +214,8 @@ Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks, bool ambientOccl
                     l = 0.8f;
                     a = b = c = d = e = f = g = h = 0.0f;
 
-                    if (ambientOcclusion) {
+                    if (ambientOcclusion)
+                    {
                         a = is_blocked(x, y + 1, z - 1, chunks) * aoIntensity;
                         b = is_blocked(x + 1, y, z - 1, chunks) * aoIntensity;
                         c = is_blocked(x, y - 1, z - 1, chunks) * aoIntensity;

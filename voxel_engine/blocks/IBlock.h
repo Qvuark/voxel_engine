@@ -1,13 +1,12 @@
-#ifndef IBLOCK
-#define IBLOCK
+#ifndef IBLOCK_H
+#define IBLOCK_H
 
 class IBlock
 {
+protected:
 	virtual ~IBlock() = default;
-	virtual int getBlockId() = 0;
-	virtual void render(int x, int y, int z) = 0;
-	virtual void interactable() = 0;
-	virtual bool isBlockCarvable() { return true };
+	virtual int getBlockId() const = 0;
+	virtual bool isBlockCarvable() const { return true; };
 };
 
 #endif

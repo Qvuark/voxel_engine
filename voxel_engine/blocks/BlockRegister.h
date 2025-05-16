@@ -15,12 +15,22 @@
 #include "WoodBlock.h"
 
 
-inline std::make_unique<IBlock> createBlockById(int id)
+inline std::unique_ptr<IBlock> createBlockById(int id)
 {
 	switch (id)
 	{
 	case 0: return std::make_unique<AirBlock>();
-	case 1: return std::make_unique<>
+	case 1: return std::make_unique<SlaneBlock>();
+	case 2: return std::make_unique<CobblestoneBlock>();
+	case 3: return std::make_unique<DirtBlock>();
+	case 4: return std::make_unique<AndesiteBlock>();
+	case 5: return std::make_unique<WaterBlock>();
+	case 6: return std::make_unique<BedrockBlock>();
+	case 7: return std::make_unique<CoalBlock>();
+	//case 8: return std::make_unique<>
+	case 9: return std::make_unique<WoodBlock>();
+	case 10: return std::make_unique<LeavesBlock>();
+	default: return std::make_unique<AirBlock>();
 	}
 }
 #endif 

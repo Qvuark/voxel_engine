@@ -2,4 +2,4 @@
 
 int LeavesBlock::getBlockId() const { return 10; }
 
-bool LeavesBlock::isBlockCarvable() const { return true; }
+bool LeavesBlock::isBlockCarvable() const { return false; }

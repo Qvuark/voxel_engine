@@ -2,4 +2,4 @@
 
 int WoodBlock::getBlockId() const { return 9; }
 
-bool WoodBlock::isBlockCarvable() const { return true; }
+bool WoodBlock::isBlockCarvable() const { return false; }

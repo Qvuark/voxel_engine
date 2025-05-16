@@ -1,9 +1,9 @@
-#ifndef ANDESITEBLOCK_H
-#define ANDESITECLOCK_H
+#ifndef	LEAVESBLOCK_H
+#define LEAVESBLOCK_H
 
 #include "IBlock.h"
 
-class AndesiteBlock : public IBlock
+class LeavesBlock : public IBlock
 {
 public:
 	int getBlockId() const override;

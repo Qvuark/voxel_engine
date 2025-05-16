@@ -59,7 +59,7 @@ Chunk* Chunks::getChunk(int x, int y, int z)
 		return nullptr;
 	return chunks[(y * depth + z) * width + x];
 }
-void Chunks::setVoxel(int x, int y, int z, int id)
+void Chunks::setVoxel(int x, int y, int z, IBlock* block)
 {
 	auto calculateChunkIndex = [](int coord, int chunkSize)	{
 			return (coord < 0) ? (coord - (chunkSize - 1)) / chunkSize : coord / chunkSize;
@@ -76,7 +76,8 @@ void Chunks::setVoxel(int x, int y, int z, int id)
 	int ly = (y % CHUNK_HEIGHT + CHUNK_HEIGHT) % CHUNK_HEIGHT;
 	int lz = (z % CHUNK_DEPTH + CHUNK_DEPTH) % CHUNK_DEPTH;
 
-	chunk->voxels[id] = createBlockById(id);
+	size_t idx = (ly * CHUNK_DEPTH + lz) * CHUNK_WIDTH + lx;
+	chunk->voxels[idx] = createBlockById(block->getBlockId());
 	chunk->isModified = true;
 
 	if (lx == 0)

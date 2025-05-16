@@ -130,24 +130,18 @@ int main()
             vec3 end;
             vec3 norm;
             vec3 voxCoords;
+            AirBlock* air = new AirBlock();
+            CoalBlock* coal = new CoalBlock();
             IBlock* vox = chunks->pointerRay(camera->pos, camera->front, 15.0f, end, norm, voxCoords);			
             if (vox != nullptr) 
             {
                 if (Events::jtClicked(GLFW_MOUSE_BUTTON_1)) 
                 {
-                    chunks->setVoxel(static_cast<int>(voxCoords.x), static_cast<int>(voxCoords.y), static_cast<int>(voxCoords.z), 0);
+                    chunks->setVoxel(static_cast<int>(voxCoords.x), static_cast<int>(voxCoords.y), static_cast<int>(voxCoords.z), air);
                 }
                 if (Events::jtClicked(GLFW_MOUSE_BUTTON_2)) 
                 {
-                    chunks->setVoxel(static_cast<int>(voxCoords.x) + static_cast<int>(norm.x), static_cast<int>(voxCoords.y) + static_cast<int>(norm.y), static_cast<int>(voxCoords.z) + static_cast<int>(norm.z), 3);
-                }
-                if (Events::jtClicked(GLFW_MOUSE_BUTTON_3))
-                {
-                    chunks->setVoxel(static_cast<int>(voxCoords.x) + static_cast<int>(norm.x), static_cast<int>(voxCoords.y) + static_cast<int>(norm.y), static_cast<int>(voxCoords.z) + static_cast<int>(norm.z), 4);
-                }
-                if (Events::jtClicked(GLFW_MOUSE_BUTTON_4))
-                {
-                    chunks->setVoxel(static_cast<int>(voxCoords.x) + static_cast<int>(norm.x), static_cast<int>(voxCoords.y) + static_cast<int>(norm.y), static_cast<int>(voxCoords.z) + static_cast<int>(norm.z), 5);
+                    chunks->setVoxel(static_cast<int>(voxCoords.x) + static_cast<int>(norm.x), static_cast<int>(voxCoords.y) + static_cast<int>(norm.y), static_cast<int>(voxCoords.z) + static_cast<int>(norm.z), coal);
                 }
             }
         }

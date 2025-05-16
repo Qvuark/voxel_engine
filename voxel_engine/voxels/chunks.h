@@ -17,7 +17,7 @@ public:
 	Chunks(int w, int h, int d);
 	IBlock* getVoxel(int x, int y, int z);
 	Chunk* getChunk(int x, int y, int z);
-	void setVoxel(int x, int y, int z, int id);
+	void setVoxel(int x, int y, int z, IBlock* block);
 	IBlock* pointerRay(glm::vec3 start, glm::vec3 dir, float maxLength, glm::vec3 & end, glm::vec3& norm, glm::vec3& iend);
 	~Chunks();
 };

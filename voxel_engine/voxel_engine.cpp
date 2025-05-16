@@ -130,7 +130,7 @@ int main()
             vec3 end;
             vec3 norm;
             vec3 voxCoords;
-            Voxel* vox = chunks->pointerRay(camera->pos, camera->front, 15.0f, end, norm, voxCoords);			
+            IBlock* vox = chunks->pointerRay(camera->pos, camera->front, 15.0f, end, norm, voxCoords);			
             if (vox != nullptr) 
             {
                 if (Events::jtClicked(GLFW_MOUSE_BUTTON_1)) 

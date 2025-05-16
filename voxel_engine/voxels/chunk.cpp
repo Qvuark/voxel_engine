@@ -14,6 +14,11 @@ inline int getVoxelIndex(int lx, int ly, int lz)
 {
     return (ly * CHUNK_DEPTH + lz) * CHUNK_WIDTH + lx;
 }
+IBlock* Chunk::getBlock(int lx, int ly, int lz) const 
+{
+    int idx = (ly * CHUNK_DEPTH + lz) * CHUNK_WIDTH + lx;
+    return voxels[idx].get();  
+}
 
 Chunk::Chunk(int xpos, int ypos, int zpos) : x(xpos), y(ypos), z(zpos)
 {

@@ -26,7 +26,7 @@ public:
 
 	Chunk(int xpos, int ypos, int zpos);
 	void generateTree(int x, int y, int z);
-	uint8_t determineVoxelId(int realX, int realY, int realZ);
+	IBlock* getBlock(int lx, int ly, int lz) const;
 	~Chunk();
 };
 

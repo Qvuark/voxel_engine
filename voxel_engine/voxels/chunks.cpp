@@ -1,6 +1,7 @@
 #include "chunks.h"
 #include "chunk.h"
 #include "voxels.h"
+#include "../blocks/BlockRegister.h"
 
 Chunks::Chunks(int w, int h, int d) : width(w), height(h), depth(d)
 {
@@ -29,7 +30,7 @@ Chunks::~Chunks()
 	delete[] chunks;
 }
 
-Voxel* Chunks::getVoxel(int x, int y, int z)
+IBlock* Chunks::getVoxel(int x, int y, int z)
 {
 	auto calculateChunkIndex = [](int coord, int chunkSize) {
 		return (coord < 0) ? (coord - (chunkSize - 1)) / chunkSize : coord / chunkSize;
@@ -48,7 +49,9 @@ Voxel* Chunks::getVoxel(int x, int y, int z)
 	int ly = (y % CHUNK_HEIGHT + CHUNK_HEIGHT) % CHUNK_HEIGHT;
 	int lz = (z % CHUNK_DEPTH + CHUNK_DEPTH) % CHUNK_DEPTH;
 
-	return &chunk->voxels[(ly * CHUNK_DEPTH + lz) * CHUNK_WIDTH + lx];
+	size_t idx = (ly * CHUNK_DEPTH + lz) * CHUNK_WIDTH + lx;
+
+	return chunk->voxels[idx].get();
 }
 Chunk* Chunks::getChunk(int x, int y, int z) 
 {
@@ -73,7 +76,7 @@ void Chunks::setVoxel(int x, int y, int z, int id)
 	int ly = (y % CHUNK_HEIGHT + CHUNK_HEIGHT) % CHUNK_HEIGHT;
 	int lz = (z % CHUNK_DEPTH + CHUNK_DEPTH) % CHUNK_DEPTH;
 
-	chunk->voxels[(ly * CHUNK_DEPTH + lz) * CHUNK_WIDTH + lx].id = id;
+	chunk->voxels[id] = createBlockById(id);
 	chunk->isModified = true;
 
 	if (lx == 0)
@@ -119,7 +122,7 @@ void Chunks::setVoxel(int x, int y, int z, int id)
 		}
 	}
 }
-Voxel* Chunks::pointerRay(glm::vec3 a, glm::vec3 dir, float maxDist, glm::vec3& end, glm::vec3& norm, glm::vec3& iend)
+IBlock* Chunks::pointerRay(glm::vec3 a, glm::vec3 dir, float maxDist, glm::vec3& end, glm::vec3& norm, glm::vec3& iend)
 {
 	if (glm::length(dir) != 0.0f)
 	{
@@ -164,9 +167,9 @@ Voxel* Chunks::pointerRay(glm::vec3 a, glm::vec3 dir, float maxDist, glm::vec3& 
 
 	while (t <= maxDist)
 	{
-		Voxel* voxel = getVoxel(ix, iy, iz);
+		IBlock* voxel = getVoxel(ix, iy, iz);
 
-		if (voxel == nullptr || voxel->id)
+		if (voxel == nullptr || voxel->getBlockId())
 		{
 			end.x = px + t * dx;
 			end.y = py + t * dy;

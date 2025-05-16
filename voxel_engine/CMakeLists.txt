@@ -23,7 +23,7 @@ add_executable(voxel_engine
  "graphics/mesh.cpp" "graphics/mesh.h" "voxels/voxels.h" "voxels/voxels.cpp" "voxels/chunk.cpp" "graphics/voxel_renderer.cpp" 
  "graphics/voxel_renderer.h" "voxels/chunks.cpp" "voxels/chunks.h" "blocks/AirBlock.cpp" "blocks/AirBlock.h" "blocks/WaterBlock.cpp" 
  "blocks/WaterBlock.h" "blocks/DirtBlock.h" "blocks/DirtBlock.cpp" "blocks/AndesiteBlock.cpp" "blocks/AndesiteBlock.h" "blocks/CobblestoneBlock.h" 
- "blocks/CobblestoneBlock.cpp" "blocks/SlaneBlock.h" "blocks/SlaneBlock.cpp" "blocks/CoalBlock.h" "blocks/CoalBlock.cpp" "blocks/BedrockBlock.h" 
+ "blocks/CobblestoneBlock.cpp" "blocks/SlaneBlock.h" "blocks/SlaneBlock.cpp" "blocks/CoalBlock.h" "blocks/CoalBlock.cpp" "blocks/BedrockBlock.h" "blocks/WoodBlock.cpp" 
  "blocks/WoodBlock.h" "blocks/LeavesBlock.cpp" "blocks/LeavesBlock.h" "blocks/BedrockBlock.cpp" "blocks/BlockRegister.h")
 
 # Находим GLFW, установленную через vcpkg

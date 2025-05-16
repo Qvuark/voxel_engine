@@ -2,7 +2,7 @@
 #include "Mesh.h"
 #include "../voxels/chunk.h"
 #include "../voxels/voxels.h"
-
+#include <memory>
 #define VERTEX_SIZE (3 + 2 + 1)
 
 inline int cdiv(int X, int A) 
@@ -34,18 +34,24 @@ inline bool is_chunk(int X, int Y, int Z, const Chunk** chunks)
 	return get_chunk(X, Y, Z, chunks) != nullptr;
 }
 
-inline Voxel voxel(int X, int Y, int Z, const Chunk** chunks)
+inline IBlock* voxel(int X, int Y, int Z, const Chunk** chunks)
 {
 	const Chunk* chunk = get_chunk(X, Y, Z, chunks);
 	int lx = local(X, CHUNK_WIDTH);
 	int ly = local(Y, CHUNK_HEIGHT);
 	int lz = local(Z, CHUNK_DEPTH);
-	return chunk->voxels[(ly * CHUNK_DEPTH + lz) * CHUNK_WIDTH + lx];
+	return chunk->getBlock(lx, ly, lz);
 }
-
 inline bool is_blocked(int X, int Y, int Z, const Chunk** chunks)
 {
-	return !is_chunk(X, Y, Z, chunks) || voxel(X, Y, Z, chunks).id;
+    if (!is_chunk(X, Y, Z, chunks))
+        return true;
+
+    IBlock* block = voxel(X, Y, Z, chunks);
+    if (!block)
+        return false; 
+
+    return block->getBlockId() != 0;
 }
 
 inline size_t add_vertex(float* buffer, size_t index, float x, float y, float z, float u, float v, float l)
@@ -79,8 +85,8 @@ Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks, bool ambientOccl
 		{
 			for (int x = 0; x < CHUNK_WIDTH; x++)
 			{
-				Voxel vox = chunk->voxels[(y * CHUNK_DEPTH + z) * CHUNK_WIDTH + x];
-				unsigned int id = vox.id;
+				IBlock* block = chunk->getBlock(x,y,z);
+				unsigned int id = block->getBlockId();
 
 				if (!id)
 					continue;

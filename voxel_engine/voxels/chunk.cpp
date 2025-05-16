@@ -85,7 +85,7 @@ Chunk::Chunk(int xpos, int ypos, int zpos) : x(xpos), y(ypos), z(zpos)
                         {
                             if (lx > 2 && lx < 13 && lz > 2 && lz < 13)
                             {
-                                if (rand() % 100 < 60)
+                                if (rand() % 100 < 40)
                                     generateTree(lx, ly, lz);
                             }
                         }
@@ -225,9 +225,10 @@ void Chunk::generateTree(int x, int y, int z)
         if (y + dy >= CHUNK_HEIGHT)
             break;
         int idx = getVoxelIndex(x, y + dy, z);
-        if (voxels[idx] == createBlockById(0) || voxels[idx] == createBlockById(3))
-        { 
-            voxels[idx] = createBlockById(10);
+        auto& ptr = voxels[idx];
+        if (!ptr || ptr->getBlockId() == 3) 
+        {
+            ptr = createBlockById(10);
         }
     }
 
@@ -250,7 +251,7 @@ void Chunk::generateTree(int x, int y, int z)
                     continue;
 
                 int idx = getVoxelIndex(px, py, pz);
-                if (voxels[idx] == createBlockById(0)) 
+                if (!voxels[idx]) 
                 {
                     voxels[idx] = createBlockById(9);
                 }

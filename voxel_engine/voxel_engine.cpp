@@ -69,7 +69,6 @@ int main()
 
     glClearColor(0.6f, 0.62f, 0.65f, 1);
     glEnable(GL_DEPTH_TEST);
-    //glEnable(GL_LIGHTING);
     glEnable(GL_CULL_FACE);
 
     Mesh* crosshair = new Mesh(vertices, 4, attributes);
@@ -127,8 +126,6 @@ int main()
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        //draw vao
-        
         {
             vec3 end;
             vec3 norm;

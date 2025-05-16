@@ -3,7 +3,7 @@
 
 class IBlock
 {
-protected:
+public:
 	virtual ~IBlock() = default;
 	virtual int getBlockId() const = 0;
 	virtual bool isBlockCarvable() const { return true; };

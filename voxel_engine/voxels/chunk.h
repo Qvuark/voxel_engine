@@ -2,6 +2,9 @@
 #define CHUNK_H
 
 #include <cstdint>
+#include <memory>
+#include "../blocks/IBlock.h"
+
 
 #define CHUNK_WIDTH 16
 #define CHUNK_HEIGHT 128
@@ -18,11 +21,11 @@ public:
 
 	int x, y, z;
 	bool isModified = true;
-	Voxel* voxels;
+
+	std::unique_ptr<IBlock> *voxels;
 
 	Chunk(int xpos, int ypos, int zpos);
 	void generateTree(int x, int y, int z);
-	int noiseGenerator(int realX, int realY, int realZ);
 	uint8_t determineVoxelId(int realX, int realY, int realZ);
 	~Chunk();
 };

@@ -1,5 +1,7 @@
 ﻿#include "chunk.h"
 #include "voxels.h"
+#include "../blocks/blockRegister.h"
+#include "../blocks/IBlock.h"
 #include <math.h>
 #include <glm/gtc/noise.hpp>
 #include <iostream> 
@@ -12,13 +14,14 @@ inline int getVoxelIndex(int lx, int ly, int lz)
 {
     return (ly * CHUNK_DEPTH + lz) * CHUNK_WIDTH + lx;
 }
+
 Chunk::Chunk(int xpos, int ypos, int zpos) : x(xpos), y(ypos), z(zpos)
 {
 
     const float NOISE_SCALE = 0.05f;
-    const int WATER_LEVEL = 50;
-    const int COAL_SPAWN_CHANCE = 104;
-    const int TREE_SPACING = 10;
+    const int   WATER_LEVEL = 50;
+    const int   COAL_SPAWN_CHANCE = 104;
+    const int   TREE_SPACING = 10;
 
     const float CAVE_NOISE_SCALE = 0.03f;
     const int   CAVE_MIN_Y = 5;
@@ -32,7 +35,8 @@ Chunk::Chunk(int xpos, int ypos, int zpos) : x(xpos), y(ypos), z(zpos)
     const int   SHAFT_RADIUS = 3;
     const int   MIN_ENTRY_DEPTH = 8;
 
-    voxels = new Voxel[CHUNK_VOLUME]{};
+    voxels = new std::unique_ptr<IBlock>[CHUNK_VOLUME];
+
 
     for (int ly = 0; ly < CHUNK_HEIGHT; ly++)
     {
@@ -87,9 +91,9 @@ Chunk::Chunk(int xpos, int ypos, int zpos) : x(xpos), y(ypos), z(zpos)
                     id = 5;
                 }
 
-                if (voxels[getVoxelIndex(lx, ly, lz)].id == 0)
+                if (voxels[getVoxelIndex(lx, ly, lz)] == 0)
                 {
-                    voxels[getVoxelIndex(lx, ly, lz)].id = id;
+                    voxels[getVoxelIndex(lx, ly, lz)] = createBlockById(id);
                 }
             }
         }
@@ -109,7 +113,7 @@ Chunk::Chunk(int xpos, int ypos, int zpos) : x(xpos), y(ypos), z(zpos)
             {
                 int idx = getVoxelIndex(lx, ly, lz);
 
-                if (voxels[idx].id == 5 || voxels[idx].id == 6 || voxels[idx].id == 9 || voxels[idx].id == 10)
+                if (!voxels[idx]-> isBlockCarvable())
                     continue;
 
                 int realX = lx + x * CHUNK_WIDTH;
@@ -131,7 +135,7 @@ Chunk::Chunk(int xpos, int ypos, int zpos) : x(xpos), y(ypos), z(zpos)
 
                 if (noise > CAVE_THRESHOLD)
                 {
-                    voxels[idx].id = 0;
+                    voxels[idx] = createBlockById(0);
 
                     int surfaceHeight = WATER_LEVEL + 5;
                     int depth = surfaceHeight - realY;
@@ -168,22 +172,22 @@ Chunk::Chunk(int xpos, int ypos, int zpos) : x(xpos), y(ypos), z(zpos)
 
                                     int entryIdx = getVoxelIndex(wx, ly + dy, wz);
 
-                                    if (voxels[entryIdx].id == 5 || voxels[entryIdx].id == 6 || voxels[entryIdx].id == 9 || voxels[entryIdx].id == 10)
+                                    if (!voxels[idx]->isBlockCarvable())
                                         continue;
 
                                     if (dy > depth - 3)
                                     {
                                         if (ox * ox + oz * oz <= (ENTRY_RADIUS * ENTRY_RADIUS) * (1.0f - t))
                                         {
-                                            if (voxels[entryIdx].id == 3)
-                                                voxels[entryIdx].id = 4;
+                                            if (voxels[entryIdx] == createBlockById(3))
+                                                voxels[entryIdx] = createBlockById(4);
                                             else
-                                                voxels[entryIdx].id = 0;
+                                                voxels[entryIdx] = createBlockById(0);
                                         }
                                     }
                                     else
                                     {
-                                        voxels[entryIdx].id = 0;
+                                        voxels[entryIdx] = createBlockById(0);
                                     }
                                 }
                             }
@@ -197,7 +201,7 @@ Chunk::Chunk(int xpos, int ypos, int zpos) : x(xpos), y(ypos), z(zpos)
 
                     if (dist < 9.0f)
                     {
-                        voxels[idx].id = 0;
+                        voxels[idx] = createBlockById(0);
 
                     }
                 }
@@ -216,9 +220,9 @@ void Chunk::generateTree(int x, int y, int z)
         if (y + dy >= CHUNK_HEIGHT)
             break;
         int idx = getVoxelIndex(x, y + dy, z);
-        if (voxels[idx].id == 0 || voxels[idx].id == 3) 
+        if (voxels[idx] == createBlockById(0) || voxels[idx] == createBlockById(3))
         { 
-            voxels[idx].id = 10; 
+            voxels[idx] = createBlockById(10);
         }
     }
 
@@ -241,9 +245,9 @@ void Chunk::generateTree(int x, int y, int z)
                     continue;
 
                 int idx = getVoxelIndex(px, py, pz);
-                if (voxels[idx].id == 0) 
+                if (voxels[idx] == createBlockById(0)) 
                 {
-                    voxels[idx].id = 9; 
+                    voxels[idx] = createBlockById(9);
                 }
             }
         }

@@ -51,7 +51,7 @@ IBlock* Chunks::getVoxel(int x, int y, int z)
 
 	size_t idx = (ly * CHUNK_DEPTH + lz) * CHUNK_WIDTH + lx;
 
-	return chunk->voxels[idx].get();
+	return chunk->getBlock(idx);
 }
 Chunk* Chunks::getChunk(int x, int y, int z) 
 {
@@ -77,49 +77,49 @@ void Chunks::setVoxel(int x, int y, int z, IBlock* block)
 	int lz = (z % CHUNK_DEPTH + CHUNK_DEPTH) % CHUNK_DEPTH;
 
 	size_t idx = (ly * CHUNK_DEPTH + lz) * CHUNK_WIDTH + lx;
-	chunk->voxels[idx] = createBlockById(block->getBlockId());
-	chunk->isModified = true;
+	chunk->setBlock(idx, block->getBlockId());
+	chunk->modify(true);
 
 	if (lx == 0)
 	{
 		if (Chunk* neighbor = getChunk(cx - 1, cy, cz))
 		{
-			neighbor->isModified = true;
+			neighbor->modify(true);
 		}
 	}
 	if (ly == 0)
 	{
 		if (Chunk* neighbor = getChunk(cx, cy - 1, cz))
 		{
-			neighbor->isModified = true;
+			neighbor->modify(true);
 		}
 	}
 	if (lz == 0)
 	{
 		if (Chunk* neighbor = getChunk(cx, cy, cz - 1))
 		{
-			neighbor->isModified = true;
+			neighbor->modify(true);
 		}
 	}
 	if (lx == CHUNK_WIDTH - 1)
 	{
 		if (Chunk* neighbor = getChunk(cx + 1, cy, cz))
 		{
-			neighbor->isModified = true;
+			neighbor->modify(true);
 		}
 	}
 	if (ly == CHUNK_HEIGHT - 1)
 	{
 		if (Chunk* neighbor = getChunk(cx, cy + 1, cz))
 		{
-			neighbor->isModified = true;
+			neighbor->modify(true);
 		}
 	}
 	if (lz == CHUNK_DEPTH - 1)
 	{
 		if (Chunk* neighbor = getChunk(cx, cy, cz + 1))
 		{
-			neighbor->isModified = true;
+			neighbor->modify(true);
 		}
 	}
 }
@@ -223,6 +223,6 @@ IBlock* Chunks::pointerRay(glm::vec3 a, glm::vec3 dir, float maxDist, glm::vec3&
 	norm.x = norm.y = norm.z = 0.0f;
 
 	return nullptr;
-
-
 }
+size_t Chunks::getVolume() const { return volume; }
+Chunk* Chunks::getChunkById(int id) const { return chunks[id]; }

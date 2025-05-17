@@ -17,16 +17,21 @@ class Voxel;
 
 class Chunk
 {
-public:
-
+private:
 	int x, y, z;
 	bool isModified = true;
-
-	std::unique_ptr<IBlock> *voxels;
-
+	std::unique_ptr<IBlock>* voxels;
+public:
 	Chunk(int xpos, int ypos, int zpos);
 	void generateTree(int x, int y, int z);
 	IBlock* getBlock(int lx, int ly, int lz) const;
+	int getX() const;
+	int getY() const;
+	int getZ() const;
+	void modify(bool b);
+	bool getModifiedState() const;
+	IBlock* getBlock(int index);
+	void setBlock(int index, int blockId);
 	~Chunk();
 };
 

@@ -25,7 +25,6 @@ private:
 	static void window_size_callback(GLFWwindow* window, int width, int height);
 
 public:
-	
 	static int initialize();
 	static void pullEvents();
 	static bool clicked(int keycode);
@@ -38,7 +37,6 @@ public:
 	static const int getTotalKeys();
 	static float getDeltaX();
 	static float getDeltaY();
-	static bool setCursorStarted(bool started);
 	static bool isCursorLocked();
 };
 

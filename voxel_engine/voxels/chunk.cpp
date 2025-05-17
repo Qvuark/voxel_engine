@@ -263,3 +263,15 @@ Chunk::~Chunk()
 {
     delete[] voxels;
 }
+int Chunk::getX() const { return x; }
+int Chunk::getY() const { return y; }
+int Chunk::getZ() const { return z; }
+void Chunk::modify(bool b) { isModified = b; }
+bool Chunk::getModifiedState() const { return isModified;}
+IBlock* Chunk::getBlock(int index) {return voxels[index].get();}
+void Chunk::setBlock(int index, int blockId) 
+{
+    if (index < 0 || index >= CHUNK_VOLUME) 
+        return;
+    voxels[index] = createBlockById(blockId);
+}

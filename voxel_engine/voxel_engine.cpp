@@ -31,8 +31,8 @@ std::vector<int> attributes = {2,0};
 int main()
 {
     srand(time(0));
-    int currentWidth = Window::width;
-    int currentHeight = Window::height;
+    int currentWidth = Window::getWidth();
+    int currentHeight = Window::getHeight();
 
     Window::initialize(currentWidth, currentHeight, "window");
     Events::initialize();
@@ -60,8 +60,8 @@ int main()
         return 1;
     }
     Chunks* chunks = new Chunks(20, 2, 20);
-    Mesh** meshes = new Mesh*[chunks->volume];
-    for (size_t i = 0; i < chunks->volume; i++)
+    Mesh** meshes = new Mesh*[chunks->getVolume()];
+    for (size_t i = 0; i < chunks->getVolume(); i++)
         meshes[i] = nullptr;
 
     VoxelRenderer renderer(1024 * 1024);
@@ -98,30 +98,28 @@ int main()
         {
             Events::toggleCursor();
         }
-        if (Events::pressed(GLFW_KEY_W))
+        if (Events::pressed(GLFW_KEY_W)) 
         {
-            camera->pos += camera->front * delta * speed;
+            camera->move(camera->getFront() * delta * speed);
         }
-        if (Events::pressed(GLFW_KEY_A))
+        if (Events::pressed(GLFW_KEY_A)) 
         {
-            camera->pos -= camera->right * delta * speed;
+            camera->move(-camera->getRight() * delta * speed);
         }
-        if (Events::pressed(GLFW_KEY_S))
+        if (Events::pressed(GLFW_KEY_S)) 
         {
-            camera->pos -= camera->front * delta * speed;
+            camera->move(-camera->getFront() * delta * speed);
         }
-        if (Events::pressed(GLFW_KEY_D))
+        if (Events::pressed(GLFW_KEY_D)) 
         {
-            camera->pos += camera->right * delta * speed;
+            camera->move(camera->getRight() * delta * speed);
         }
-
         float pitchDelta = Events::getDeltaY() * sensitivityY;
         float yawDelta = -Events::getDeltaX() * sensitivityX;
         static float pitch = 0.0f;
         pitch += pitchDelta;
         pitch = clamp(pitch, -89.0f, 89.0f);
         
-
         camera->rotate(pitchDelta, yawDelta);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -132,7 +130,7 @@ int main()
             vec3 voxCoords;
             AirBlock* air = new AirBlock();
             CoalBlock* coal = new CoalBlock();
-            IBlock* vox = chunks->pointerRay(camera->pos, camera->front, 15.0f, end, norm, voxCoords);			
+            IBlock* vox = chunks->pointerRay(camera->getPos(), camera->getFront(), 15.0f, end, norm, voxCoords);
             if (vox != nullptr) 
             {
                 if (Events::jtClicked(GLFW_MOUSE_BUTTON_1)) 
@@ -147,12 +145,12 @@ int main()
         }
         Chunk* closeChunks[27];
 
-        for (size_t i = 0; i < chunks->volume; i++)
+        for (size_t i = 0; i < chunks->getVolume(); i++)
         {
-            Chunk* chunk = chunks->chunks[i];
-            if (!chunk->isModified)
+            Chunk* chunk = chunks->getChunkById(i);
+            if (!chunk->getModifiedState())
                 continue;
-            chunk->isModified = false;
+            chunk->modify(false);
 
             if (meshes[i] != nullptr)
                 delete meshes[i];
@@ -161,13 +159,13 @@ int main()
             {
                 closeChunks[k] = nullptr;
             }
-            for (size_t j = 0; j < chunks->volume; j++)
+            for (size_t j = 0; j < chunks->getVolume(); j++)
             {
-                Chunk* other = chunks->chunks[j];
+                Chunk* other = chunks->getChunkById(j);
 
-                int ox = other->x - chunk->x;
-                int oy = other->y - chunk->y;
-                int oz = other->z - chunk->z;
+                int ox = other->getX() - chunk->getX();
+                int oy = other->getY() - chunk->getY();
+                int oz = other->getZ() - chunk->getZ();
 
                 if (abs(ox) > 1 || abs(oy) > 1 || abs(oz) > 1)
                 {
@@ -196,11 +194,11 @@ int main()
         texture->bind();
 
         mat4 model;
-        for (size_t i = 0; i < chunks->volume; i++)
+        for (size_t i = 0; i < chunks->getVolume(); i++)
         {
-            Chunk* chunk = chunks->chunks[i];
+            Chunk* chunk = chunks->getChunkById(i);
             Mesh* mesh = meshes[i];
-            mat4 model = glm::translate(mat4(1.0f), vec3(chunk->x * CHUNK_WIDTH+0.5f, chunk->y * CHUNK_HEIGHT + 0.5f, chunk->z * CHUNK_DEPTH + 0.5f));
+            mat4 model = glm::translate(mat4(1.0f), vec3(chunk->getX() * CHUNK_WIDTH+0.5f, chunk->getY() * CHUNK_HEIGHT + 0.5f, chunk->getZ() * CHUNK_DEPTH + 0.5f));
             voxelShader->uniformMatrix("model", model);
             mesh->drawPrimitive(GL_TRIANGLES);
         }

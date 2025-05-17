@@ -94,12 +94,12 @@ bool Events::jtPressed(int keycode)
 void Events::window_size_callback(GLFWwindow *window, int width, int height)
 {
 	glViewport(0, 0, width, height);
-	Window::width = width;
-	Window::height = height;
+	Window::setWidth(width);
+	Window::setHeight(height);
 }
 int Events::initialize()
 {
-	GLFWwindow* window = Window::window;
+	GLFWwindow* window = Window::getWindow();
 	_keys = new bool[TOTAL_KEYS];
 	_frames = new unsigned int[TOTAL_KEYS];
 

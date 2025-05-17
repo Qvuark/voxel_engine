@@ -71,3 +71,8 @@ void Window::terminate()
     destroyWindow();
     glfwTerminate();
 }
+int Window::getHeight() { return height; }
+int Window::getWidth() { return width; }
+void Window::setHeight(int h) { height = h; }
+void Window::setWidth(int w) { width = w; }
+GLFWwindow* Window::getWindow() { return window; }

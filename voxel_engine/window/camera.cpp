@@ -26,10 +26,14 @@ void Camera::rotate(float pitch, float yaw, float roll)
 
 mat4 Camera::getPerspective() const
 {
-	float aspect = static_cast<float>(Window::width) / static_cast<float> (Window::height);
+	float aspect = static_cast<float>(Window::getWidth()) / static_cast<float> (Window::getHeight());
 	return perspective(fov, aspect, 0.1f, 100.0f);
 }
-mat4 Camera::getView() const
-{
-	return lookAt(pos, pos + front, up);
-}
+void Camera::move(const vec3& delta) { pos += delta; }
+
+mat4 Camera::getView() const { return lookAt(pos, pos + front, up);}
+vec3 Camera::getPos() const { return pos; }
+quat Camera::getOrientation() const { return orientation; }
+vec3 Camera::getFront() const { return front; }
+vec3 Camera::getRight() const { return right; }
+vec3 Camera::getUp() const { return up; }

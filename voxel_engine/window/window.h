@@ -6,12 +6,12 @@ class GLFWwindow;
 
 class Window
 {
-public:
+private:
 	static GLFWwindow* window;
 	Window() = delete;
 	static int width;
 	static int height;
-
+public:
 	static int initialize(int width, int height, const char* title);
 	static void terminate();
 	static void destroyWindow();
@@ -19,7 +19,11 @@ public:
 	static void setShouldClose(bool flag);
 	static void swapBuffers();
 	static void setCursorMode(int mode);
-
+	static int getHeight();
+	static int getWidth();
+	static void setHeight(int height);
+	static void setWidth(int width);
+	static GLFWwindow* getWindow();
 };
 
 

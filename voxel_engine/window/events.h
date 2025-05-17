@@ -6,7 +6,7 @@
 
 class Events
 {
-public:
+private:
 	static const int MOUSE_BUTTONS;
 	static const int TOTAL_KEYS;
 	static bool* _keys;
@@ -18,6 +18,13 @@ public:
 	static float y;
 	static bool _cursorStarted;
 	static bool _cursorLocked;
+
+	static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
+	static void mouse_button_callback(GLFWwindow* window, int button, int action, int mode);
+	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
+	static void window_size_callback(GLFWwindow* window, int width, int height);
+
+public:
 	
 	static int initialize();
 	static void pullEvents();
@@ -25,9 +32,14 @@ public:
 	static bool jtClicked(int keycode);
 	static bool pressed(int keycode);
 	static bool jtPressed(int keycode);
-
 	static void toggleCursor();
 
+	static const int getMouseButtons();
+	static const int getTotalKeys();
+	static float getDeltaX();
+	static float getDeltaY();
+	static bool setCursorStarted(bool started);
+	static bool isCursorLocked();
 };
 
 #endif

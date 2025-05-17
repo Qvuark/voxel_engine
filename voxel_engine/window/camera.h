@@ -11,10 +11,10 @@ using namespace glm;
 class Camera 
 {
 public:
+    vec3 front, right, up;
     vec3 pos;
     float fov;
     quat orientation;
-    vec3 front, right, up;
 
     Camera(vec3 position, float fov);
     void updateVectors();

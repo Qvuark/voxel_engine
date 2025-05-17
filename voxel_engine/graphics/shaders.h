@@ -7,10 +7,12 @@
 
 class Shader 
 {
+private:
+	unsigned id;
 public:
 	Shader(unsigned id);
 	~Shader();
-	unsigned id;
+
 	void use();
 	void uniformMatrix(std::string name, glm::mat4 matrix);
 };

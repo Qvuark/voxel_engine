@@ -5,9 +5,10 @@
 
 class Texture 
 {
-public:
+private:
 	unsigned int id;
 	int width, height;
+public:
 	Texture(unsigned int id, int width, int height);
 	~Texture();
 	void bind();

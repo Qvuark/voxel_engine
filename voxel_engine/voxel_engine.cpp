@@ -115,8 +115,8 @@ int main()
             camera->pos += camera->right * delta * speed;
         }
 
-        float pitchDelta = -Events::deltaY * sensitivityY;
-        float yawDelta = -Events::deltaX * sensitivityX;
+        float pitchDelta = Events::getDeltaY() * sensitivityY;
+        float yawDelta = -Events::getDeltaX() * sensitivityX;
         static float pitch = 0.0f;
         pitch += pitchDelta;
         pitch = clamp(pitch, -89.0f, 89.0f);

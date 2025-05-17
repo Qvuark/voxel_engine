@@ -114,7 +114,7 @@ int main()
         {
             camera->move(camera->getRight() * delta * speed);
         }
-        float pitchDelta = Events::getDeltaY() * sensitivityY;
+        float pitchDelta = -Events::getDeltaY() * sensitivityY;
         float yawDelta = -Events::getDeltaX() * sensitivityX;
         static float pitch = 0.0f;
         pitch += pitchDelta;

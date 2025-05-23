@@ -177,7 +177,7 @@ Chunk::Chunk(int xpos, int ypos, int zpos) : x(xpos), y(ypos), z(zpos)
 
                                     int entryIdx = getVoxelIndex(wx, ly + dy, wz);
 
-                                    if (!voxels[idx]->isBlockCarvable())
+                                    if (!voxels[entryIdx]->isBlockCarvable())
                                         continue;
 
                                     if (dy > depth - 3)

@@ -129,7 +129,7 @@ int main()
             vec3 norm;
             vec3 voxCoords;
             AirBlock* air = new AirBlock();
-            CoalBlock* coal = new CoalBlock();
+            PlanksBlock* wood = new PlanksBlock();
             IBlock* vox = chunks->pointerRay(camera->getPos(), camera->getFront(), 15.0f, end, norm, voxCoords);
             if (vox != nullptr) 
             {
@@ -139,7 +139,7 @@ int main()
                 }
                 if (Events::jtClicked(GLFW_MOUSE_BUTTON_2)) 
                 {
-                    chunks->setVoxel(static_cast<int>(voxCoords.x) + static_cast<int>(norm.x), static_cast<int>(voxCoords.y) + static_cast<int>(norm.y), static_cast<int>(voxCoords.z) + static_cast<int>(norm.z), coal);
+                    chunks->setVoxel(static_cast<int>(voxCoords.x) + static_cast<int>(norm.x), static_cast<int>(voxCoords.y) + static_cast<int>(norm.y), static_cast<int>(voxCoords.z) + static_cast<int>(norm.z), wood);
                 }
             }
         }

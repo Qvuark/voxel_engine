@@ -13,7 +13,7 @@
 #include "SlaneBlock.h"
 #include "WaterBlock.h"
 #include "WoodBlock.h"
-
+#include "PlanksBlock.h"
 
 inline std::unique_ptr<IBlock> createBlockById(int id)
 {
@@ -27,7 +27,7 @@ inline std::unique_ptr<IBlock> createBlockById(int id)
 	case 5: return std::make_unique<WaterBlock>();
 	case 6: return std::make_unique<BedrockBlock>();
 	case 7: return std::make_unique<CoalBlock>();
-	//case 8: return std::make_unique<>
+	case 8: return std::make_unique<PlanksBlock>();
 	case 9: return std::make_unique<WoodBlock>();
 	case 10: return std::make_unique<LeavesBlock>();
 	default: return std::make_unique<AirBlock>();

@@ -77,7 +77,7 @@ VoxelRenderer::~VoxelRenderer() {}
 Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks, bool ambientOcclusion)
 {
 	size_t index = 0;
-	float aoIntensity = 0.20f;
+	float aoIntensity = 0.25f;
 
 	for (int y = 0; y < CHUNK_HEIGHT; y++)
 	{

@@ -59,15 +59,15 @@ int main()
         Window::terminate();
         return 1;
     }
-    Chunks* chunks = new Chunks(20, 2, 20);
+    Chunks* chunks = new Chunks(20, 1, 20);
     Mesh** meshes = new Mesh*[chunks->getVolume()];
     for (size_t i = 0; i < chunks->getVolume(); i++)
         meshes[i] = nullptr;
 
     VoxelRenderer renderer(1024 * 1024);
     
-
-    glClearColor(0.05f, 0.13f, 0.27f, 1);
+    bool isDay = false;
+    
     //glClearColor(0.74f, 0.97f, 0.97f, 1);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -91,6 +91,22 @@ int main()
         delta = currentTime - lastTime;
         lastTime = currentTime;
 
+        if (Events::jtPressed(GLFW_KEY_T)) 
+        {
+            isDay = !isDay;
+            for (size_t i = 0; i < chunks->getVolume(); i++) 
+            {
+                chunks->getChunkById(i)->modify(true);
+            }
+        }
+        if (isDay) 
+        {
+            glClearColor(0.74f, 0.97f, 0.97f, 1);
+        }
+        else 
+        {
+            glClearColor(0.0f, 0.0f, 0.17f, 1);
+        }
         if (Events::jtPressed(GLFW_KEY_ESCAPE))
         {
             Window::setShouldClose(true);
@@ -130,7 +146,7 @@ int main()
             vec3 norm;
             vec3 voxCoords;
             AirBlock* air = new AirBlock();
-            PlanksBlock* wood = new PlanksBlock();
+            PlayersBlock* wood = new PlayersBlock();
             IBlock* vox = chunks->pointerRay(camera->getPos(), camera->getFront(), 15.0f, end, norm, voxCoords);
             if (vox != nullptr) 
             {
@@ -186,7 +202,7 @@ int main()
                 closeChunks[index] = other;
             }
 
-            Mesh* mesh = renderer.render(chunk, (const Chunk**)closeChunks, true);
+            Mesh* mesh = renderer.render(chunk, (const Chunk**)closeChunks, true, isDay);
             meshes[i] = mesh;
         }
 

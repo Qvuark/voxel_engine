@@ -6,7 +6,8 @@
 class WoodBlock : public IBlock
 {
 public:
-    WoodBlock() { baseTextureId = 12; }
+    WoodBlock() { baseTextureId = 11; }
+    int getBlockId() const { return 9; }
     virtual int getTextureId(bool isDay) const { return baseTextureId; }
     glm::vec3 getColorMultiplier(bool isDay) const override 
     {

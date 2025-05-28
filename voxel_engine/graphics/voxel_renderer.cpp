@@ -3,7 +3,8 @@
 #include "../voxels/chunk.h"
 #include "../voxels/voxels.h"
 #include <memory>
-#define VERTEX_SIZE (3 + 2 + 1)
+
+#define VERTEX_SIZE (3 + 2 + 1 + 3)
 
 inline int cdiv(int X, int A) 
 {
@@ -42,7 +43,7 @@ inline IBlock* voxel(int X, int Y, int Z, const Chunk** chunks)
 	int lz = local(Z, CHUNK_DEPTH);
 	return chunk->getBlock(lx, ly, lz);
 }
-inline bool is_blocked(int X, int Y, int Z, const Chunk** chunks)
+inline bool is_blocked(int X, int Y, int Z, const Chunk** chunks, bool isDay)
 {
     if (!is_chunk(X, Y, Z, chunks))
         return true;
@@ -54,7 +55,7 @@ inline bool is_blocked(int X, int Y, int Z, const Chunk** chunks)
     return block->getBlockId() != 0;
 }
 
-inline size_t add_vertex(float* buffer, size_t index, float x, float y, float z, float u, float v, float l)
+inline size_t add_vertex(float* buffer, size_t index, float x, float y, float z, float u, float v, float l, float r, float g, float b)
 {
 	buffer[index] = x;
 	buffer[index + 1] = y;
@@ -62,10 +63,13 @@ inline size_t add_vertex(float* buffer, size_t index, float x, float y, float z,
 	buffer[index + 3] = u;
 	buffer[index + 4] = v;
 	buffer[index + 5] = l;
+    buffer[index + 6] = r;
+    buffer[index + 7] = g;
+    buffer[index + 8] = b;
 	return index + VERTEX_SIZE;
 }
 
-static std::vector<int> attributes = { 3,2,1,0 };
+static std::vector<int> attributes = { 3,2,1,3 };
 
 VoxelRenderer::VoxelRenderer(size_t capacity) : capacity(capacity)
 {
@@ -74,7 +78,7 @@ VoxelRenderer::VoxelRenderer(size_t capacity) : capacity(capacity)
 
 VoxelRenderer::~VoxelRenderer() {}
 
-Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks, bool ambientOcclusion)
+Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks, bool ambientOcclusion, bool isDay)
 {
 	size_t index = 0;
 	float aoIntensity = 0.25f;
@@ -86,7 +90,11 @@ Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks, bool ambientOccl
 			for (int x = 0; x < CHUNK_WIDTH; x++)
 			{
 				IBlock* block = chunk->getBlock(x,y,z);
-				unsigned int id = block->getBlockId();
+				unsigned int id = block->getTextureId(isDay);
+                glm::vec3 colorMult = block->getColorMultiplier(isDay);
+                float rr = colorMult.r;
+                float gg = colorMult.g;
+                float bb = colorMult.b;
 
 				if (!id)
 					continue;
@@ -100,144 +108,144 @@ Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks, bool ambientOccl
 				float a, b, c, d, e, f, g, h;
 				a = b = c = d = e = f = g = h = 0.0f;
 
-				if (!is_blocked(x, y + 1, z, chunks)) 
+				if (!is_blocked(x, y + 1, z, chunks, isDay)) 
 				{
 					l = 1.0f;
 					if (ambientOcclusion) 
 					{
-						a = is_blocked(x + 1, y + 1, z, chunks) * aoIntensity;
-						b = is_blocked(x, y + 1, z + 1, chunks) * aoIntensity;
-						c = is_blocked(x - 1, y + 1, z, chunks) * aoIntensity;
-						d = is_blocked(x, y + 1, z - 1, chunks) * aoIntensity;
+						a = is_blocked(x + 1, y + 1, z, chunks, isDay) * aoIntensity;
+						b = is_blocked(x, y + 1, z + 1, chunks, isDay) * aoIntensity;
+						c = is_blocked(x - 1, y + 1, z, chunks, isDay) * aoIntensity;
+						d = is_blocked(x, y + 1, z - 1, chunks, isDay) * aoIntensity;
 
-						e = is_blocked(x - 1, y + 1, z - 1, chunks) * aoIntensity;
-						f = is_blocked(x - 1, y + 1, z + 1, chunks) * aoIntensity;
-						g = is_blocked(x + 1, y + 1, z + 1, chunks) * aoIntensity;
-						h = is_blocked(x + 1, y + 1, z - 1, chunks) * aoIntensity;
+						e = is_blocked(x - 1, y + 1, z - 1, chunks, isDay) * aoIntensity;
+						f = is_blocked(x - 1, y + 1, z + 1, chunks, isDay) * aoIntensity;
+						g = is_blocked(x + 1, y + 1, z + 1, chunks, isDay) * aoIntensity;
+						h = is_blocked(x + 1, y + 1, z - 1, chunks, isDay) * aoIntensity;
 					}
 
-					index = add_vertex(buffer.data(), index, x - 0.5f, y + 0.5f, z - 0.5f, u2, v1, l * (1.0f - c - d - e));
-					index = add_vertex(buffer.data(), index, x - 0.5f, y + 0.5f, z + 0.5f, u2, v2, l * (1.0f - c - b - f));
-					index = add_vertex(buffer.data(), index, x + 0.5f, y + 0.5f, z + 0.5f, u1, v2, l * (1.0f - a - b - g));
-					index = add_vertex(buffer.data(), index, x - 0.5f, y + 0.5f, z - 0.5f, u2, v1, l * (1.0f - c - d - e));
-					index = add_vertex(buffer.data(), index, x + 0.5f, y + 0.5f, z + 0.5f, u1, v2, l * (1.0f - a - b - g));
-					index = add_vertex(buffer.data(), index, x + 0.5f, y + 0.5f, z - 0.5f, u1, v1, l * (1.0f - a - d - h));
+					index = add_vertex(buffer.data(), index, x - 0.5f, y + 0.5f, z - 0.5f, u2, v1, l * (1.0f - c - d - e), rr,gg,bb);
+					index = add_vertex(buffer.data(), index, x - 0.5f, y + 0.5f, z + 0.5f, u2, v2, l * (1.0f - c - b - f), rr, gg, bb);
+					index = add_vertex(buffer.data(), index, x + 0.5f, y + 0.5f, z + 0.5f, u1, v2, l * (1.0f - a - b - g), rr, gg, bb);
+					index = add_vertex(buffer.data(), index, x - 0.5f, y + 0.5f, z - 0.5f, u2, v1, l * (1.0f - c - d - e), rr, gg, bb);
+					index = add_vertex(buffer.data(), index, x + 0.5f, y + 0.5f, z + 0.5f, u1, v2, l * (1.0f - a - b - g), rr, gg, bb);
+					index = add_vertex(buffer.data(), index, x + 0.5f, y + 0.5f, z - 0.5f, u1, v1, l * (1.0f - a - d - h), rr, gg, bb);
 				}
-                if (!is_blocked(x, y - 1, z, chunks))
+                if (!is_blocked(x, y - 1, z, chunks, isDay))
                 {
                     l = 0.75f;
                     if (ambientOcclusion)
                     {
-                        a = is_blocked(x + 1, y - 1, z, chunks) * aoIntensity;
-                        b = is_blocked(x, y - 1, z + 1, chunks) * aoIntensity;
-                        c = is_blocked(x - 1, y - 1, z, chunks) * aoIntensity;
-                        d = is_blocked(x, y - 1, z - 1, chunks) * aoIntensity;
-                        e = is_blocked(x - 1, y - 1, z - 1, chunks) * aoIntensity;
-                        f = is_blocked(x - 1, y - 1, z + 1, chunks) * aoIntensity;
-                        g = is_blocked(x + 1, y - 1, z + 1, chunks) * aoIntensity;
-                        h = is_blocked(x + 1, y - 1, z - 1, chunks) * aoIntensity;
+                        a = is_blocked(x + 1, y - 1, z, chunks, isDay) * aoIntensity;
+                        b = is_blocked(x, y - 1, z + 1, chunks, isDay) * aoIntensity;
+                        c = is_blocked(x - 1, y - 1, z, chunks, isDay) * aoIntensity;
+                        d = is_blocked(x, y - 1, z - 1, chunks, isDay) * aoIntensity;
+                        e = is_blocked(x - 1, y - 1, z - 1, chunks, isDay) * aoIntensity;
+                        f = is_blocked(x - 1, y - 1, z + 1, chunks, isDay) * aoIntensity;
+                        g = is_blocked(x + 1, y - 1, z + 1, chunks, isDay) * aoIntensity;
+                        h = is_blocked(x + 1, y - 1, z - 1, chunks, isDay) * aoIntensity;
                     }
-                    index = add_vertex(buffer.data(), index, x - 0.5f, y - 0.5f, z - 0.5f, u1, v1, l * (1.0f - c - d - e));
-                    index = add_vertex(buffer.data(), index, x + 0.5f, y - 0.5f, z + 0.5f, u2, v2, l * (1.0f - a - b - g));
-                    index = add_vertex(buffer.data(), index, x - 0.5f, y - 0.5f, z + 0.5f, u1, v2, l * (1.0f - c - b - f));
-                    index = add_vertex(buffer.data(), index, x - 0.5f, y - 0.5f, z - 0.5f, u1, v1, l * (1.0f - c - d - e));
-                    index = add_vertex(buffer.data(), index, x + 0.5f, y - 0.5f, z - 0.5f, u2, v1, l * (1.0f - a - d - h));
-                    index = add_vertex(buffer.data(), index, x + 0.5f, y - 0.5f, z + 0.5f, u2, v2, l * (1.0f - a - b - g));
+                    index = add_vertex(buffer.data(), index, x - 0.5f, y - 0.5f, z - 0.5f, u1, v1, l * (1.0f - c - d - e), rr, gg, bb);
+                    index = add_vertex(buffer.data(), index, x + 0.5f, y - 0.5f, z + 0.5f, u2, v2, l * (1.0f - a - b - g), rr, gg, bb);
+                    index = add_vertex(buffer.data(), index, x - 0.5f, y - 0.5f, z + 0.5f, u1, v2, l * (1.0f - c - b - f), rr, gg, bb);
+                    index = add_vertex(buffer.data(), index, x - 0.5f, y - 0.5f, z - 0.5f, u1, v1, l * (1.0f - c - d - e), rr, gg, bb);
+                    index = add_vertex(buffer.data(), index, x + 0.5f, y - 0.5f, z - 0.5f, u2, v1, l * (1.0f - a - d - h), rr, gg, bb);
+                    index = add_vertex(buffer.data(), index, x + 0.5f, y - 0.5f, z + 0.5f, u2, v2, l * (1.0f - a - b - g), rr, gg, bb);
                 }
-                if (!is_blocked(x + 1, y, z, chunks))
+                if (!is_blocked(x + 1, y, z, chunks, isDay))
                 {
                     l = 0.95f;
 
                     if (ambientOcclusion) 
                     {
-                        a = is_blocked(x + 1, y + 1, z, chunks) * aoIntensity;
-                        b = is_blocked(x + 1, y, z + 1, chunks) * aoIntensity;
-                        c = is_blocked(x + 1, y - 1, z, chunks) * aoIntensity;
-                        d = is_blocked(x + 1, y, z - 1, chunks) * aoIntensity;
-                        e = is_blocked(x + 1, y - 1, z - 1, chunks) * aoIntensity;
-                        f = is_blocked(x + 1, y - 1, z + 1, chunks) * aoIntensity;
-                        g = is_blocked(x + 1, y + 1, z + 1, chunks) * aoIntensity;
-                        h = is_blocked(x + 1, y + 1, z - 1, chunks) * aoIntensity;
+                        a = is_blocked(x + 1, y + 1, z, chunks, isDay) * aoIntensity;
+                        b = is_blocked(x + 1, y, z + 1, chunks, isDay) * aoIntensity;
+                        c = is_blocked(x + 1, y - 1, z, chunks, isDay) * aoIntensity;
+                        d = is_blocked(x + 1, y, z - 1, chunks, isDay) * aoIntensity;
+                        e = is_blocked(x + 1, y - 1, z - 1, chunks, isDay) * aoIntensity;
+                        f = is_blocked(x + 1, y - 1, z + 1, chunks, isDay) * aoIntensity;
+                        g = is_blocked(x + 1, y + 1, z + 1, chunks, isDay) * aoIntensity;
+                        h = is_blocked(x + 1, y + 1, z - 1, chunks, isDay) * aoIntensity;
                     }
-                    index = add_vertex(buffer.data(), index, x + 0.5f, y - 0.5f, z - 0.5f, u2, v1, l * (1.0f - c - d - e));
-                    index = add_vertex(buffer.data(), index, x + 0.5f, y + 0.5f, z - 0.5f, u2, v2, l * (1.0f - d - a - h));
-                    index = add_vertex(buffer.data(), index, x + 0.5f, y + 0.5f, z + 0.5f, u1, v2, l * (1.0f - a - b - g));
-                    index = add_vertex(buffer.data(), index, x + 0.5f, y - 0.5f, z - 0.5f, u2, v1, l * (1.0f - c - d - e));
-                    index = add_vertex(buffer.data(), index, x + 0.5f, y + 0.5f, z + 0.5f, u1, v2, l * (1.0f - a - b - g));
-                    index = add_vertex(buffer.data(), index, x + 0.5f, y - 0.5f, z + 0.5f, u1, v1, l * (1.0f - b - c - f));
+                    index = add_vertex(buffer.data(), index, x + 0.5f, y - 0.5f, z - 0.5f, u2, v1, l * (1.0f - c - d - e), rr, gg, bb);
+                    index = add_vertex(buffer.data(), index, x + 0.5f, y + 0.5f, z - 0.5f, u2, v2, l * (1.0f - d - a - h), rr, gg, bb);
+                    index = add_vertex(buffer.data(), index, x + 0.5f, y + 0.5f, z + 0.5f, u1, v2, l * (1.0f - a - b - g), rr, gg, bb);
+                    index = add_vertex(buffer.data(), index, x + 0.5f, y - 0.5f, z - 0.5f, u2, v1, l * (1.0f - c - d - e), rr, gg, bb);
+                    index = add_vertex(buffer.data(), index, x + 0.5f, y + 0.5f, z + 0.5f, u1, v2, l * (1.0f - a - b - g), rr, gg, bb);
+                    index = add_vertex(buffer.data(), index, x + 0.5f, y - 0.5f, z + 0.5f, u1, v1, l * (1.0f - b - c - f), rr, gg, bb);
                 }
-                if (!is_blocked(x - 1, y, z, chunks)) 
+                if (!is_blocked(x - 1, y, z, chunks, isDay))
                 {
                     l = 0.85f;
                     a = b = c = d = e = f = g = h = 0.0f;
 
                     if (ambientOcclusion)
                     {
-                        a = is_blocked(x - 1, y + 1, z, chunks) * aoIntensity;
-                        b = is_blocked(x - 1, y, z + 1, chunks) * aoIntensity;
-                        c = is_blocked(x - 1, y - 1, z, chunks) * aoIntensity;
-                        d = is_blocked(x - 1, y, z - 1, chunks) * aoIntensity;
-                        e = is_blocked(x - 1, y - 1, z - 1, chunks) * aoIntensity;
-                        f = is_blocked(x - 1, y - 1, z + 1, chunks) * aoIntensity;
-                        g = is_blocked(x - 1, y + 1, z + 1, chunks) * aoIntensity;
-                        h = is_blocked(x - 1, y + 1, z - 1, chunks) * aoIntensity;
+                        a = is_blocked(x - 1, y + 1, z, chunks, isDay) * aoIntensity;
+                        b = is_blocked(x - 1, y, z + 1, chunks, isDay) * aoIntensity;
+                        c = is_blocked(x - 1, y - 1, z, chunks, isDay) * aoIntensity;
+                        d = is_blocked(x - 1, y, z - 1, chunks, isDay) * aoIntensity;
+                        e = is_blocked(x - 1, y - 1, z - 1, chunks, isDay) * aoIntensity;
+                        f = is_blocked(x - 1, y - 1, z + 1, chunks, isDay) * aoIntensity;
+                        g = is_blocked(x - 1, y + 1, z + 1, chunks, isDay) * aoIntensity;
+                        h = is_blocked(x - 1, y + 1, z - 1, chunks, isDay) * aoIntensity;
                     }
 
-                    index = add_vertex(buffer.data(), index, x - 0.5f, y - 0.5f, z - 0.5f, u1, v1, l * (1.0f - c - d - e));
-                    index = add_vertex(buffer.data(), index, x - 0.5f, y + 0.5f, z + 0.5f, u2, v2, l * (1.0f - a - b - g));
-                    index = add_vertex(buffer.data(), index, x - 0.5f, y + 0.5f, z - 0.5f, u1, v2, l * (1.0f - d - a - h));
-                    index = add_vertex(buffer.data(), index, x - 0.5f, y - 0.5f, z - 0.5f, u1, v1, l * (1.0f - c - d - e));
-                    index = add_vertex(buffer.data(), index, x - 0.5f, y - 0.5f, z + 0.5f, u2, v1, l * (1.0f - b - c - f));
-                    index = add_vertex(buffer.data(), index, x - 0.5f, y + 0.5f, z + 0.5f, u2, v2, l * (1.0f - a - b - g));
+                    index = add_vertex(buffer.data(), index, x - 0.5f, y - 0.5f, z - 0.5f, u1, v1, l * (1.0f - c - d - e), rr, gg, bb);
+                    index = add_vertex(buffer.data(), index, x - 0.5f, y + 0.5f, z + 0.5f, u2, v2, l * (1.0f - a - b - g), rr, gg, bb);
+                    index = add_vertex(buffer.data(), index, x - 0.5f, y + 0.5f, z - 0.5f, u1, v2, l * (1.0f - d - a - h), rr, gg, bb);
+                    index = add_vertex(buffer.data(), index, x - 0.5f, y - 0.5f, z - 0.5f, u1, v1, l * (1.0f - c - d - e), rr, gg, bb);
+                    index = add_vertex(buffer.data(), index, x - 0.5f, y - 0.5f, z + 0.5f, u2, v1, l * (1.0f - b - c - f), rr, gg, bb);
+                    index = add_vertex(buffer.data(), index, x - 0.5f, y + 0.5f, z + 0.5f, u2, v2, l * (1.0f - a - b - g), rr, gg, bb);
                 }
 
-                if (!is_blocked(x, y, z + 1, chunks)) 
+                if (!is_blocked(x, y, z + 1, chunks, isDay))
                 {
                     l = 0.9f;
                     a = b = c = d = e = f = g = h = 0.0f;
 
                     if (ambientOcclusion) 
                     {
-                        a = is_blocked(x, y + 1, z + 1, chunks) * aoIntensity;
-                        b = is_blocked(x + 1, y, z + 1, chunks) * aoIntensity;
-                        c = is_blocked(x, y - 1, z + 1, chunks) * aoIntensity;
-                        d = is_blocked(x - 1, y, z + 1, chunks) * aoIntensity;
-                        e = is_blocked(x - 1, y - 1, z + 1, chunks) * aoIntensity;
-                        f = is_blocked(x + 1, y - 1, z + 1, chunks) * aoIntensity;
-                        g = is_blocked(x + 1, y + 1, z + 1, chunks) * aoIntensity;
-                        h = is_blocked(x - 1, y + 1, z + 1, chunks) * aoIntensity;
+                        a = is_blocked(x, y + 1, z + 1, chunks, isDay) * aoIntensity;
+                        b = is_blocked(x + 1, y, z + 1, chunks, isDay) * aoIntensity;
+                        c = is_blocked(x, y - 1, z + 1, chunks, isDay) * aoIntensity;
+                        d = is_blocked(x - 1, y, z + 1, chunks, isDay) * aoIntensity;
+                        e = is_blocked(x - 1, y - 1, z + 1, chunks, isDay) * aoIntensity;
+                        f = is_blocked(x + 1, y - 1, z + 1, chunks, isDay) * aoIntensity;
+                        g = is_blocked(x + 1, y + 1, z + 1, chunks, isDay) * aoIntensity;
+                        h = is_blocked(x - 1, y + 1, z + 1, chunks, isDay) * aoIntensity;
                     }
 
-                    index = add_vertex(buffer.data(), index, x - 0.5f, y - 0.5f, z + 0.5f, u1, v1, l * (1.0f - c - d - e));
-                    index = add_vertex(buffer.data(), index, x + 0.5f, y + 0.5f, z + 0.5f, u2, v2, l * (1.0f - a - b - g));
-                    index = add_vertex(buffer.data(), index, x - 0.5f, y + 0.5f, z + 0.5f, u1, v2, l * (1.0f - a - d - h));
-                    index = add_vertex(buffer.data(), index, x - 0.5f, y - 0.5f, z + 0.5f, u1, v1, l * (1.0f - c - d - e));
-                    index = add_vertex(buffer.data(), index, x + 0.5f, y - 0.5f, z + 0.5f, u2, v1, l * (1.0f - b - c - f));
-                    index = add_vertex(buffer.data(), index, x + 0.5f, y + 0.5f, z + 0.5f, u2, v2, l * (1.0f - a - b - g));
+                    index = add_vertex(buffer.data(), index, x - 0.5f, y - 0.5f, z + 0.5f, u1, v1, l * (1.0f - c - d - e), rr, gg, bb);
+                    index = add_vertex(buffer.data(), index, x + 0.5f, y + 0.5f, z + 0.5f, u2, v2, l * (1.0f - a - b - g), rr, gg, bb);
+                    index = add_vertex(buffer.data(), index, x - 0.5f, y + 0.5f, z + 0.5f, u1, v2, l * (1.0f - a - d - h), rr, gg, bb);
+                    index = add_vertex(buffer.data(), index, x - 0.5f, y - 0.5f, z + 0.5f, u1, v1, l * (1.0f - c - d - e), rr, gg, bb);
+                    index = add_vertex(buffer.data(), index, x + 0.5f, y - 0.5f, z + 0.5f, u2, v1, l * (1.0f - b - c - f), rr, gg, bb);
+                    index = add_vertex(buffer.data(), index, x + 0.5f, y + 0.5f, z + 0.5f, u2, v2, l * (1.0f - a - b - g), rr, gg, bb);
                 }
-                if (!is_blocked(x, y, z - 1, chunks)) 
+                if (!is_blocked(x, y, z - 1, chunks, isDay))
                 {
                     l = 0.8f;
                     a = b = c = d = e = f = g = h = 0.0f;
 
                     if (ambientOcclusion)
                     {
-                        a = is_blocked(x, y + 1, z - 1, chunks) * aoIntensity;
-                        b = is_blocked(x + 1, y, z - 1, chunks) * aoIntensity;
-                        c = is_blocked(x, y - 1, z - 1, chunks) * aoIntensity;
-                        d = is_blocked(x - 1, y, z - 1, chunks) * aoIntensity;
-                        e = is_blocked(x - 1, y - 1, z - 1, chunks) * aoIntensity;
-                        f = is_blocked(x + 1, y - 1, z - 1, chunks) * aoIntensity;
-                        g = is_blocked(x + 1, y + 1, z - 1, chunks) * aoIntensity;
-                        h = is_blocked(x - 1, y + 1, z - 1, chunks) * aoIntensity;
+                        a = is_blocked(x, y + 1, z - 1, chunks, isDay) * aoIntensity;
+                        b = is_blocked(x + 1, y, z - 1, chunks, isDay) * aoIntensity;
+                        c = is_blocked(x, y - 1, z - 1, chunks, isDay) * aoIntensity;
+                        d = is_blocked(x - 1, y, z - 1, chunks, isDay) * aoIntensity;
+                        e = is_blocked(x - 1, y - 1, z - 1, chunks, isDay) * aoIntensity;
+                        f = is_blocked(x + 1, y - 1, z - 1, chunks, isDay) * aoIntensity;
+                        g = is_blocked(x + 1, y + 1, z - 1, chunks, isDay) * aoIntensity;
+                        h = is_blocked(x - 1, y + 1, z - 1, chunks, isDay) * aoIntensity;
                     }
 
-                    index = add_vertex(buffer.data(), index, x - 0.5f, y - 0.5f, z - 0.5f, u2, v1, l * (1.0f - c - d - e));
-                    index = add_vertex(buffer.data(), index, x - 0.5f, y + 0.5f, z - 0.5f, u2, v2, l * (1.0f - a - d - h));
-                    index = add_vertex(buffer.data(), index, x + 0.5f, y + 0.5f, z - 0.5f, u1, v2, l * (1.0f - a - b - g));
-                    index = add_vertex(buffer.data(), index, x - 0.5f, y - 0.5f, z - 0.5f, u2, v1, l * (1.0f - c - d - e));
-                    index = add_vertex(buffer.data(), index, x + 0.5f, y + 0.5f, z - 0.5f, u1, v2, l * (1.0f - a - b - g));
-                    index = add_vertex(buffer.data(), index, x + 0.5f, y - 0.5f, z - 0.5f, u1, v1, l * (1.0f - b - c - f));
+                    index = add_vertex(buffer.data(), index, x - 0.5f, y - 0.5f, z - 0.5f, u2, v1, l * (1.0f - c - d - e), rr, gg, bb);
+                    index = add_vertex(buffer.data(), index, x - 0.5f, y + 0.5f, z - 0.5f, u2, v2, l * (1.0f - a - d - h), rr, gg, bb);
+                    index = add_vertex(buffer.data(), index, x + 0.5f, y + 0.5f, z - 0.5f, u1, v2, l * (1.0f - a - b - g), rr, gg, bb);
+                    index = add_vertex(buffer.data(), index, x - 0.5f, y - 0.5f, z - 0.5f, u2, v1, l * (1.0f - c - d - e), rr, gg, bb);
+                    index = add_vertex(buffer.data(), index, x + 0.5f, y + 0.5f, z - 0.5f, u1, v2, l * (1.0f - a - b - g), rr, gg, bb);
+                    index = add_vertex(buffer.data(), index, x + 0.5f, y - 0.5f, z - 0.5f, u1, v1, l * (1.0f - b - c - f), rr, gg, bb);
                 }
             }
         }

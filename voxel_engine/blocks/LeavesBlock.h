@@ -7,7 +7,8 @@ class LeavesBlock : public IBlock
 {
 public:
 
-    LeavesBlock() { baseTextureId = 11; }
+    LeavesBlock() { baseTextureId = 12; }
+    int getBlockId() const { return 10; }
     virtual int getTextureId(bool isDay) const { return baseTextureId; }
     glm::vec3 getColorMultiplier(bool isDay) const override
     {

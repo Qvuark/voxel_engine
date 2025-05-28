@@ -6,6 +6,7 @@ class IBlock
 {
 public:
 	virtual ~IBlock() = default;
+	virtual int getBlockId() const = 0;
 	virtual int getTextureId(bool isDay) const = 0;
 	virtual bool isBlockCarvable() const { return true; };
 	virtual glm::vec3 getColorMultiplier(bool isDay) const { return glm::vec3(1.0f); }

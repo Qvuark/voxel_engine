@@ -7,8 +7,8 @@ class SlaneBlock : public IBlock
 {
 public:
     SlaneBlock() { baseTextureId = 1; }
+    int getBlockId() const { return 1; }
     virtual int getTextureId(bool isDay) const { return baseTextureId; }
-    glm::vec3 getColorMultiplier(bool isDay) const override;
     bool isDayNightSensitive() const override { return false; }
     virtual bool isBlockCarvable() const override { return true; }
 };

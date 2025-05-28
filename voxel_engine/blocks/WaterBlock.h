@@ -3,10 +3,24 @@
 
 #include "IBlock.h"
 
-class WaterBlock : public IBlock
+class WaterBlock : public IBlock 
 {
 public:
-	int getBlockId() const override;
-	virtual bool isBlockCarvable() const override;
+    WaterBlock() 
+    {
+        baseTextureId = 6;
+        dayTextureId = 6;
+        nightTextureId = 7;
+    }
+    int getTextureId(bool isDay) const override 
+    {
+        return isDay ? dayTextureId : nightTextureId;
+    }
+    glm::vec3 getColorMultiplier(bool isDay) const override;
+    bool isDayNightSensitive() const override { return true; }
+    virtual bool isBlockCarvable() const override { return false; }
+private:
+    int dayTextureId;
+    int nightTextureId;
 };
 #endif

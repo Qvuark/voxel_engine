@@ -1,17 +1,17 @@
-#ifndef	LEAVESBLOCK_H
-#define LEAVESBLOCK_H
+#ifndef	PLANKSBLOCK_H
+#define PLANKSBLOCK_H
 
 #include "IBlock.h"
 
-class LeavesBlock : public IBlock
+class PlayersBlock : public IBlock
 {
 public:
+    PlayersBlock() { baseTextureId = 10; }
 
-    LeavesBlock() { baseTextureId = 11; }
     virtual int getTextureId(bool isDay) const { return baseTextureId; }
     glm::vec3 getColorMultiplier(bool isDay) const override
     {
-        return isDay ? glm::vec3(1.0f) : glm::vec3(0.6f, 0.6f, 0.6f);
+        return isDay ? glm::vec3(1.0f) : glm::vec3(1.2f, 1.2f, 0.8f);
     }
     bool isDayNightSensitive() const override { return true; }
     virtual bool isBlockCarvable() const override { return false; }

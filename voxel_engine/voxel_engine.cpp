@@ -67,7 +67,8 @@ int main()
     VoxelRenderer renderer(1024 * 1024);
     
 
-    glClearColor(0.6f, 0.62f, 0.65f, 1);
+    glClearColor(0.05f, 0.13f, 0.27f, 1);
+    //glClearColor(0.74f, 0.97f, 0.97f, 1);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 

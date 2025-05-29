@@ -18,7 +18,7 @@ public:
         return isDay ? dayTextureId : nightTextureId;
     }
     bool isDayNightSensitive() const override { return true; }
-    virtual bool isBlockCarvable() const override { return false; }
+    bool isBlockCarvable() const override { return false; }
 private:
     int dayTextureId;
     int nightTextureId;

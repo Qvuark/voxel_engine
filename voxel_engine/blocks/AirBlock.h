@@ -8,8 +8,8 @@ class AirBlock : public IBlock
 public:
     AirBlock() { baseTextureId = 0; }
     int getBlockId() const { return 0; }
-    virtual int getTextureId(bool isDay) const { return baseTextureId; }
+    int getTextureId(bool isDay) const { return baseTextureId; }
     bool isDayNightSensitive() const override { return false; }
-    virtual bool isBlockCarvable() const override { return true; }
+    bool isBlockCarvable() const override { return true; }
 };
 #endif
